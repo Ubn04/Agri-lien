@@ -9,7 +9,7 @@ import { Footer } from '@/components/layout/footer'
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen page-transition">
       <Navigation />
       <HeroSection />
       <FeaturesSection />

@@ -265,7 +265,6 @@ npm run build
 ```
 
 ### Problème de base de données
-
 Vérifier les connexions et les credentials.
 
 ### Performance lente

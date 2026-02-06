@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import { User } from '@/lib/types'
+import { useRouter } from 'next/navigation'
 
 interface AuthContextType {
   user: User | null
@@ -16,34 +17,107 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in
-    const checkAuth = async () => {
-      try {
-        // TODO: Implement auth check
-        setIsLoading(false)
-      } catch (error) {
-        setIsLoading(false)
-      }
-    }
-
     checkAuth()
   }, [])
 
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data.user) {
+          setUser(data.data.user)
+        }
+      }
+    } catch (error) {
+      console.error('Auth check error:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const login = async (email: string, password: string) => {
-    // TODO: Implement login
-    console.log('Login:', email, password)
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Échec de la connexion')
+    }
+
+    setUser(data.data.user)
+
+    // Attendre un court instant pour que le cookie soit bien défini
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // Rediriger selon le rôle
+    switch (data.data.user.role) {
+      case 'admin':
+        router.push('/admin/dashboard')
+        break
+      case 'farmer':
+        router.push('/farmer/dashboard')
+        break
+      case 'buyer':
+        router.push('/buyer/dashboard')
+        break
+      case 'logistics':
+        router.push('/logistics/dashboard')
+        break
+      default:
+        router.push('/')
+    }
   }
 
   const logout = async () => {
-    // TODO: Implement logout
-    setUser(null)
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setUser(null)
+      router.push('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   const register = async (data: any) => {
-    // TODO: Implement registration
-    console.log('Register:', data)
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Échec de l\'inscription')
+    }
+
+    setUser(result.data.user)
+
+    // Rediriger selon le rôle
+    switch (result.data.user.role) {
+      case 'admin':
+        router.push('/admin/dashboard')
+        break
+      case 'farmer':
+        router.push('/farmer/dashboard')
+        break
+      case 'buyer':
+        router.push('/buyer/dashboard')
+        break
+      case 'logistics':
+        router.push('/logistics/dashboard')
+        break
+      default:
+        router.push('/')
+    }
   }
 
   return (

@@ -1,181 +1,402 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Search, Filter, MapPin } from 'lucide-react'
-import Link from 'next/link'
+import { useState, useMemo } from 'react'
+import { Navigation } from '@/components/layout/navigation'
+import { Footer } from '@/components/layout/footer'
+import { SearchBarAdvanced } from '@/components/marketplace/search-bar-advanced'
+import { FilterPanelAdvanced } from '@/components/marketplace/filter-panel-advanced'
+import { ProductCardEnhanced } from '@/components/marketplace/product-card-enhanced'
+import { CartFloating } from '@/components/marketplace/cart-floating'
+import { ViewToggle } from '@/components/marketplace/view-toggle'
+import { Pagination } from '@/components/marketplace/pagination'
+
+interface Product {
+  id: string
+  name: string
+  category: string
+  price: number
+  unit: string
+  image: string
+  farmer: string
+  location: string
+  rating: number
+  sales: number
+  quality: string
+  stock: number
+}
 
 export default function MarketplacePage() {
+  // État de recherche et filtres
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [showFilters, setShowFilters] = useState(false)
+  const [filters, setFilters] = useState({
+    category: 'Tous',
+    region: 'Toutes',
+    priceRange: [0, 100000] as [number, number],
+    quality: 'Toutes',
+  })
 
-  const categories = [
-    { id: 'all', name: 'Tout', emoji: '🌾' },
-    { id: 'vegetables', name: 'Légumes', emoji: '🥬' },
-    { id: 'fruits', name: 'Fruits', emoji: '🍎' },
-    { id: 'cereals', name: 'Céréales', emoji: '🌽' },
-    { id: 'tubers', name: 'Tubercules', emoji: '🥔' },
-  ]
+  // État du panier
+  const [cart, setCart] = useState<any[]>([])
 
-  const products = [
+  // État de pagination et vue
+  const [currentPage, setCurrentPage] = useState(1)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const itemsPerPage = 12
+
+  // Données produits (à remplacer par API)
+  const allProducts: Product[] = [
     {
       id: '1',
       name: 'Igname fraîche',
+      category: 'Tubercules',
       price: 500,
       unit: 'kg',
       image: '🍠',
       farmer: 'Koffi Mensah',
-      location: 'Zou',
-      rating: 4.8,
-      available: 100,
+      location: 'Abomey, Zou',
+      rating: 5,
+      sales: 127,
+      quality: 'Premium',
+      stock: 200,
     },
     {
       id: '2',
       name: 'Tomates bio',
+      category: 'Légumes',
       price: 800,
       unit: 'kg',
       image: '🍅',
       farmer: 'Aminata Diallo',
-      location: 'Ouémé',
-      rating: 4.9,
-      available: 50,
+      location: 'Cotonou, Littoral',
+      rating: 5,
+      sales: 89,
+      quality: 'Bio',
+      stock: 150,
     },
     {
       id: '3',
       name: 'Maïs jaune',
+      category: 'Céréales',
       price: 350,
       unit: 'kg',
       image: '🌽',
-      farmer: 'Jean Kouassi',
-      location: 'Atlantique',
-      rating: 4.7,
-      available: 200,
+      farmer: 'Serge Ahoussou',
+      location: 'Parakou, Borgou',
+      rating: 4,
+      sales: 156,
+      quality: 'Standard',
+      stock: 300,
     },
     {
       id: '4',
-      name: 'Ananas victoria',
-      price: 1200,
-      unit: 'pièce',
+      name: 'Ananas Victoria',
+      category: 'Fruits',
+      price: 250,
+      unit: 'unité',
       image: '🍍',
-      farmer: 'Marie Houessou',
-      location: 'Mono',
-      rating: 5.0,
-      available: 80,
+      farmer: 'Célestine Koffi',
+      location: 'Allada, Atlantique',
+      rating: 5,
+      sales: 203,
+      quality: 'Premium',
+      stock: 100,
     },
     {
       id: '5',
       name: 'Piment rouge',
-      price: 1500,
+      category: 'Épices',
+      price: 1200,
       unit: 'kg',
       image: '🌶️',
-      farmer: 'Serge Ahoussou',
-      location: 'Borgou',
-      rating: 4.6,
-      available: 30,
+      farmer: 'Jean-Baptiste',
+      location: 'Djougou, Donga',
+      rating: 5,
+      sales: 67,
+      quality: 'Bio',
+      stock: 50,
     },
     {
       id: '6',
-      name: 'Mangues kent',
+      name: 'Bananes plantain',
+      category: 'Fruits',
+      price: 400,
+      unit: 'kg',
+      image: '🍌',
+      farmer: 'Marie Ahounou',
+      location: 'Lokossa, Mono',
+      rating: 4,
+      sales: 178,
+      quality: 'Standard',
+      stock: 250,
+    },
+    {
+      id: '7',
+      name: 'Karité bio',
+      category: 'Fruits',
+      price: 2000,
+      unit: 'kg',
+      image: '🥜',
+      farmer: 'Rasmata Sawadogo',
+      location: 'Natitingou, Atacora',
+      rating: 5,
+      sales: 45,
+      quality: 'Bio',
+      stock: 80,
+    },
+    {
+      id: '8',
+      name: 'Manioc frais',
+      category: 'Tubercules',
+      price: 300,
+      unit: 'kg',
+      image: '🥔',
+      farmer: 'Honoré Gbaguidi',
+      location: 'Savalou, Collines',
+      rating: 4,
+      sales: 134,
+      quality: 'Standard',
+      stock: 400,
+    },
+    {
+      id: '9',
+      name: 'Gingembre',
+      category: 'Épices',
+      price: 1500,
+      unit: 'kg',
+      image: '🫚',
+      farmer: 'Christelle Agbodjan',
+      location: 'Porto-Novo, Ouémé',
+      rating: 5,
+      sales: 92,
+      quality: 'Premium',
+      stock: 60,
+    },
+    {
+      id: '10',
+      name: 'Haricots verts',
+      category: 'Légumes',
       price: 600,
       unit: 'kg',
-      image: '🥭',
-      farmer: 'Fatou Diop',
-      location: 'Alibori',
-      rating: 4.8,
-      available: 120,
+      image: '🫘',
+      farmer: 'Prosper Dossou',
+      location: 'Bohicon, Zou',
+      rating: 4,
+      sales: 112,
+      quality: 'Standard',
+      stock: 120,
+    },
+    {
+      id: '11',
+      name: 'Papaye solo',
+      category: 'Fruits',
+      price: 200,
+      unit: 'unité',
+      image: '🍈',
+      farmer: 'Yvette Kouton',
+      location: 'Ouidah, Atlantique',
+      rating: 5,
+      sales: 89,
+      quality: 'Premium',
+      stock: 150,
+    },
+    {
+      id: '12',
+      name: 'Riz local',
+      category: 'Céréales',
+      price: 450,
+      unit: 'kg',
+      image: '🌾',
+      farmer: 'Daniel Ahossi',
+      location: 'Malanville, Alibori',
+      rating: 4,
+      sales: 201,
+      quality: 'Standard',
+      stock: 500,
     },
   ]
 
+  // Filtrage des produits
+  const filteredProducts = useMemo(() => {
+    return allProducts.filter((product) => {
+      // Recherche
+      if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false
+      }
+
+      // Catégorie
+      if (filters.category !== 'Tous' && product.category !== filters.category) {
+        return false
+      }
+
+      // Région
+      if (filters.region !== 'Toutes' && !product.location.includes(filters.region)) {
+        return false
+      }
+
+      // Prix
+      if (product.price > filters.priceRange[1]) {
+        return false
+      }
+
+      // Qualité
+      if (filters.quality !== 'Toutes' && product.quality !== filters.quality) {
+        return false
+      }
+
+      return true
+    })
+  }, [searchQuery, filters, allProducts])
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
+  // Gestion du panier
+  const handleAddToCart = (product: Product) => {
+    const existingItem = cart.find((item) => item.id === product.id)
+    if (existingItem) {
+      setCart(
+        cart.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        )
+      )
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }])
+    }
+  }
+
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    if (quantity === 0) {
+      setCart(cart.filter((item) => item.id !== id))
+    } else {
+      setCart(cart.map((item) => (item.id === id ? { ...item, quantity } : item)))
+    }
+  }
+
+  const handleRemoveFromCart = (id: string) => {
+    setCart(cart.filter((item) => item.id !== id))
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold mb-4">Marketplace</h1>
-          
-          {/* Search Bar */}
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Rechercher des produits..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-agri-green-50/20 page-transition">
+      <Navigation />
+
+      {/* Hero section */}
+      <div className="bg-gradient-to-r from-agri-green-600 to-agri-green-700 text-white py-12 animate-fade-in">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-poppins font-bold mb-4">
+            🛒 Marketplace Agricole
+          </h1>
+          <p className="text-xl text-agri-green-100 max-w-2xl">
+            Découvrez les meilleurs produits locaux directement des agriculteurs béninois
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Barre de recherche */}
+        <div className="mb-8">
+          <SearchBarAdvanced
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            resultsCount={filteredProducts.length}
+          />
+        </div>
+
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Panel de filtres */}
+          {showFilters && (
+            <div className="lg:col-span-1">
+              <FilterPanelAdvanced
+                filters={filters}
+                setFilters={setFilters}
+                onClose={() => setShowFilters(false)}
               />
             </div>
-            <Button variant="outline">
-              <Filter className="h-5 w-5 mr-2" />
-              Filtres
-            </Button>
-          </div>
+          )}
 
-          {/* Categories */}
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-                  selectedCategory === category.id
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-              >
-                <span className="mr-2">{category.emoji}</span>
-                {category.name}
-              </button>
-            ))}
+          {/* Produits */}
+          <div className={showFilters ? 'lg:col-span-3' : 'lg:col-span-4'}>
+            {/* Toggle vue */}
+            <div className="mb-6">
+              <ViewToggle
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                totalResults={filteredProducts.length}
+              />
+            </div>
+
+            {/* Grille/Liste de produits */}
+            {paginatedProducts.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="text-8xl mb-6">🔍</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Aucun produit trouvé
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Essayez de modifier vos filtres ou votre recherche
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setFilters({
+                      category: 'Tous',
+                      region: 'Toutes',
+                      priceRange: [0, 100000],
+                      quality: 'Toutes',
+                    })
+                  }}
+                  className="bg-agri-green-500 hover:bg-agri-green-600 text-white px-6 py-3 rounded-lg font-semibold"
+                >
+                  Réinitialiser les filtres
+                </button>
+              </div>
+            ) : (
+              <>
+                <div
+                  className={
+                    viewMode === 'grid'
+                      ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+                      : 'space-y-4'
+                  }
+                >
+                  {paginatedProducts.map((product) => (
+                    <ProductCardEnhanced
+                      key={product.id}
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      viewMode={viewMode}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <Link key={product.id} href={`/marketplace/product/${product.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardContent className="pt-6">
-                  <div className="text-6xl text-center mb-4">{product.image}</div>
-                  
-                  <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                  
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <div className="text-2xl font-bold text-primary-600">
-                        {product.price} FCFA
-                      </div>
-                      <div className="text-sm text-gray-600">par {product.unit}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-yellow-600">★ {product.rating}</div>
-                    </div>
-                  </div>
+      {/* Panier flottant */}
+      <CartFloating
+        items={cart}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemove={handleRemoveFromCart}
+      />
 
-                  <div className="border-t pt-3 space-y-2">
-                    <div className="text-sm text-gray-600">
-                      Par {product.farmer}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {product.location}
-                    </div>
-                    <div className="text-sm text-green-600">
-                      {product.available} {product.unit} disponibles
-                    </div>
-                  </div>
-
-                  <Button className="w-full mt-4">Ajouter au panier</Button>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <Footer />
     </div>
   )
 }

@@ -1,0 +1,310 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useRouter } from 'next/navigation';
+import { Product } from '@/lib/types';
+import { Package, Search, Trash2, Edit, AlertCircle, Eye, Plus } from 'lucide-react';
+
+export default function AdminProductsPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [stockFilter, setStockFilter] = useState<string>('all');
+
+  useEffect(() => {
+    if (!user || user.role !== 'admin') {
+      router.push('/login');
+      return;
+    }
+
+    fetchProducts();
+  }, [user, router]);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteProduct = async (productId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setProducts(products.filter(p => p.id !== productId));
+        alert('Produit supprimé avec succès');
+      } else {
+        alert('Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Erreur lors de la suppression');
+    }
+  };
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.farmer?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
+    
+    const matchesStock = 
+      stockFilter === 'all' ||
+      (stockFilter === 'low' && p.stock > 0 && p.stock <= 10) ||
+      (stockFilter === 'out' && p.stock === 0);
+    
+    return matchesSearch && matchesCategory && matchesStock;
+  });
+
+  const getStockBadge = (stock: number) => {
+    if (stock === 0) {
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-red-500/10 text-red-400 border border-red-500/30">
+          <AlertCircle className="w-3 h-3" />
+          Rupture de stock
+        </span>
+      );
+    }
+    if (stock <= 10) {
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/30">
+          <AlertCircle className="w-3 h-3" />
+          Stock faible
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-500/10 text-green-400 border border-green-500/30">
+        En stock
+      </span>
+    );
+  };
+
+  const stats = {
+    total: products.length,
+    value: products.reduce((sum, p) => sum + (p.price * p.stock), 0),
+    lowStock: products.filter(p => p.stock > 0 && p.stock <= 10).length,
+    outOfStock: products.filter(p => p.stock === 0).length,
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900 p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Gestion des Produits</h1>
+            <p className="text-gray-400">{filteredProducts.length} produit(s) trouvé(s)</p>
+          </div>
+          <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition-all">
+            <Plus className="w-5 h-5" />
+            Ajouter un produit
+          </button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-gray-800 border border-green-500/30 rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Total Produits</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.total}</p>
+              </div>
+              <div className="p-3 bg-green-500/10 rounded-lg">
+                <Package className="w-6 h-6 text-green-400" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-800 border border-blue-500/30 rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Valeur Totale</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.value.toLocaleString()}</p>
+                <p className="text-xs text-gray-500">FCFA</p>
+              </div>
+              <div className="p-3 bg-blue-500/10 rounded-lg">
+                <Package className="w-6 h-6 text-blue-400" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-800 border border-orange-500/30 rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Stock Faible</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.lowStock}</p>
+              </div>
+              <div className="p-3 bg-orange-500/10 rounded-lg">
+                <AlertCircle className="w-6 h-6 text-orange-400" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-800 border border-red-500/30 rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Rupture Stock</p>
+                <p className="text-3xl font-bold text-white mt-1">{stats.outOfStock}</p>
+              </div>
+              <div className="p-3 bg-red-500/10 rounded-lg">
+                <AlertCircle className="w-6 h-6 text-red-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un produit..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="all">Toutes catégories</option>
+              <option value="Légumes">Légumes</option>
+              <option value="Fruits">Fruits</option>
+              <option value="Céréales">Céréales</option>
+              <option value="Tubercules">Tubercules</option>
+            </select>
+
+            {/* Stock Filter */}
+            <select
+              value={stockFilter}
+              onChange={(e) => setStockFilter(e.target.value)}
+              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="all">Tous les stocks</option>
+              <option value="low">Stock faible</option>
+              <option value="out">Rupture de stock</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:shadow-gray-900/50 transition-all"
+            >
+              {/* Product Image */}
+              <div className="relative h-48 bg-gray-700">
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full">
+                    <Package className="w-16 h-16 text-gray-600" />
+                  </div>
+                )}
+                <div className="absolute top-3 right-3">
+                  {getStockBadge(product.stock)}
+                </div>
+              </div>
+
+              {/* Product Info */}
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-2">{product.name}</h3>
+                <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+                  {product.description || 'Aucune description'}
+                </p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Prix</span>
+                    <span className="text-green-400 font-bold">{product.price} FCFA/{product.unit}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Stock</span>
+                    <span className="text-white font-semibold">{product.stock} {product.unit}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Catégorie</span>
+                    <span className="text-white">{product.category}</span>
+                  </div>
+                  {product.farmer && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">Fermier</span>
+                      <span className="text-white">{product.farmer.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    <Eye className="w-4 h-4" />
+                    Voir
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 transition-colors">
+                    <Edit className="w-4 h-4" />
+                    Modifier
+                  </button>
+                  <button
+                    onClick={() => deleteProduct(product.id)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/20 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
+            <Package className="mx-auto w-12 h-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">Aucun produit trouvé</h3>
+            <p className="text-sm text-gray-500">Essayez de modifier vos critères de recherche</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

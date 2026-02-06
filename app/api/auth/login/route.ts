@@ -1,36 +1,62 @@
+import { mockDB } from '@/lib/db/mock-database'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { email, password } = body
+    const { email, password } = await request.json()
 
-    // TODO: Implement login logic
-    // 1. Validate input
-    // 2. Find user in database
-    // 3. Verify password
-    // 4. Generate JWT token
-    // 5. Set HTTP-only cookie
+    // Validation
+    if (!email || !password) {
+      return NextResponse.json(
+        { success: false, message: 'Email et mot de passe requis' },
+        { status: 400 }
+      )
+    }
+
+    // Vérifier l'utilisateur
+    const user = mockDB.findUserByEmail(email)
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: 'Email ou mot de passe incorrect' },
+        { status: 401 }
+      )
+    }
+
+    // Vérifier le mot de passe
+    const isPasswordValid = mockDB.verifyUserPassword(email, password)
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { success: false, message: 'Email ou mot de passe incorrect' },
+        { status: 401 }
+      )
+    }
+
+    // Créer une session
+    const token = mockDB.createSession(user.id)
+
+    // Définir le cookie
+    const cookieStore = await cookies()
+    cookieStore.set('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 jours
+    })
 
     return NextResponse.json({
       success: true,
-      message: 'Login successful',
+      message: 'Connexion réussie',
       data: {
-        user: {
-          id: '1',
-          email,
-          role: 'FARMER',
-        },
+        user,
+        token,
       },
     })
   } catch (error) {
+    console.error('Login error:', error)
     return NextResponse.json(
-      {
-        success: false,
-        message: 'Login failed',
-        error: 'Invalid credentials',
-      },
-      { status: 401 }
+      { success: false, message: 'Erreur lors de la connexion' },
+      { status: 500 }
     )
   }
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
-import { Users, ShoppingBag, Truck } from 'lucide-react'
+import { Users, ShoppingBag, Truck, CheckCircle, Leaf } from 'lucide-react'
 
 export default function RegisterPage() {
   const roles = [
@@ -9,7 +9,9 @@ export default function RegisterPage() {
       title: 'Fermier',
       description: 'Vendez vos produits directement aux acheteurs',
       href: '/register/farmer',
-      color: 'bg-green-100 text-green-600',
+      color: 'bg-agri-green-100 text-agri-green-600',
+      gradient: 'from-agri-green-400 to-agri-green-600',
+      benefits: ['Vendre sans intermédiaire', 'Gérer vos stocks', 'Suivi des commandes'],
     },
     {
       icon: ShoppingBag,
@@ -17,49 +19,125 @@ export default function RegisterPage() {
       description: 'Achetez des produits frais locaux',
       href: '/register/buyer',
       color: 'bg-blue-100 text-blue-600',
+      gradient: 'from-blue-400 to-blue-600',
+      benefits: ['Produits frais', 'Prix directs fermiers', 'Livraison rapide'],
     },
     {
       icon: Truck,
       title: 'Logistique',
       description: 'Offrez des services de livraison',
       href: '/register/logistics',
-      color: 'bg-purple-100 text-purple-600',
+      color: 'bg-agri-ochre-100 text-agri-ochre-600',
+      gradient: 'from-agri-ochre-400 to-agri-ochre-600',
+      benefits: ['Revenus supplémentaires', 'Routes optimisées', 'Paiements sécurisés'],
     },
   ]
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-2">Rejoignez Agri-Lien</h1>
-          <p className="text-gray-600">Choisissez votre type de compte</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-agri-green-50 page-transition">
+      <div className="container mx-auto px-4 py-12 lg:py-20">
+        {/* Header */}
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="flex justify-center mb-6">
+            <div className="h-20 w-20 bg-gradient-to-br from-agri-green-500 to-agri-green-700 rounded-2xl flex items-center justify-center shadow-lg">
+              <Leaf className="h-10 w-10 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 font-poppins">
+            Rejoignez Agri-Lien
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Choisissez votre type de compte et commencez à révolutionner l'agriculture au Bénin
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        {/* Role Cards */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
           {roles.map((role, index) => (
             <Link key={index} href={role.href}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardContent className="pt-6">
-                  <div className={`h-16 w-16 ${role.color} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
-                    <role.icon className="h-8 w-8" />
+              <Card 
+                className="hover-lift press-feedback cursor-pointer h-full border-2 hover:border-agri-green-300 transition-all group animate-scale-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="p-8">
+                  {/* Icon with gradient background */}
+                  <div className="relative mb-6">
+                    <div className={`h-20 w-20 bg-gradient-to-br ${role.gradient} rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:scale-110 transition-transform`}>
+                      <role.icon className="h-10 w-10 text-white" />
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-center mb-2">
+
+                  {/* Title & Description */}
+                  <h3 className="text-2xl font-bold text-center mb-3 text-gray-900 font-poppins group-hover:text-agri-green-600 transition-colors">
                     {role.title}
                   </h3>
-                  <p className="text-gray-600 text-center text-sm">
+                  <p className="text-gray-600 text-center mb-6">
                     {role.description}
                   </p>
+
+                  {/* Benefits */}
+                  <div className="space-y-2 mb-6">
+                    {role.benefits.map((benefit, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-agri-green-500 flex-shrink-0" />
+                        <span className="text-gray-700">{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA */}
+                  <div className={`text-center py-2 px-4 rounded-lg ${role.color} font-medium group-hover:shadow-md transition-shadow`}>
+                    S'inscrire comme {role.title}
+                  </div>
                 </CardContent>
               </Card>
             </Link>
           ))}
         </div>
 
-        <div className="mt-8 text-center text-sm">
-          <span className="text-gray-600">Vous avez déjà un compte? </span>
-          <Link href="/login" className="text-primary-600 hover:underline font-medium">
-            Se connecter
-          </Link>
+        {/* Features Banner */}
+        <div className="max-w-4xl mx-auto mb-12 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+            <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">
+              Pourquoi choisir Agri-Lien?
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="h-14 w-14 bg-agri-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🌾</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">100% Local</h3>
+                <p className="text-sm text-gray-600">Produits béninois de qualité</p>
+              </div>
+              <div className="text-center">
+                <div className="h-14 w-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Accessible</h3>
+                <p className="text-sm text-gray-600">USSD sans connexion Internet</p>
+              </div>
+              <div className="text-center">
+                <div className="h-14 w-14 bg-agri-ochre-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">💰</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Sécurisé</h3>
+                <p className="text-sm text-gray-600">Paiements Mobile Money</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Login Link */}
+        <div className="text-center">
+          <p className="text-gray-600">
+            Vous avez déjà un compte?{' '}
+            <Link 
+              href="/login" 
+              className="font-semibold text-agri-green-600 hover:text-agri-green-700 hover:underline"
+            >
+              Se connecter
+            </Link>
+          </p>
         </div>
       </div>
     </div>

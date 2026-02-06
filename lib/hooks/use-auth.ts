@@ -18,7 +18,7 @@ export function useAuth() {
       const response = await fetch('/api/auth/me')
       if (response.ok) {
         const data = await response.json()
-        setUser(data.user)
+        setUser(data.data?.user || null)
       }
     } catch (err) {
       setError('Failed to check authentication')
@@ -39,11 +39,12 @@ export function useAuth() {
       })
 
       if (!response.ok) {
-        throw new Error('Login failed')
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Login failed')
       }
 
       const data = await response.json()
-      setUser(data.user)
+      setUser(data.data?.user || null)
       return data
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
