@@ -12,17 +12,17 @@ export interface User {
 }
 
 export enum UserRole {
-  FARMER = 'FARMER',
-  BUYER = 'BUYER',
-  LOGISTICS = 'LOGISTICS',
-  ADMIN = 'ADMIN',
+  FARMER = 'farmer',
+  BUYER = 'buyer',
+  LOGISTICS = 'logistics',
+  ADMIN = 'admin',
 }
 
 export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  PENDING = 'PENDING',
-  SUSPENDED = 'SUSPENDED',
-  INACTIVE = 'INACTIVE',
+  ACTIVE = 'active',
+  PENDING = 'pending',
+  SUSPENDED = 'suspended',
+  INACTIVE = 'inactive',
 }
 
 export interface FarmerProfile extends User {
@@ -43,11 +43,11 @@ export interface BuyerProfile extends User {
 }
 
 export enum BusinessType {
-  RESTAURANT = 'RESTAURANT',
-  HOTEL = 'HOTEL',
-  SUPERMARKET = 'SUPERMARKET',
-  DISTRIBUTOR = 'DISTRIBUTOR',
-  OTHER = 'OTHER',
+  RESTAURANT = 'restaurant',
+  HOTEL = 'hotel',
+  SUPERMARKET = 'supermarket',
+  DISTRIBUTOR = 'distributor',
+  OTHER = 'other',
 }
 
 export interface LogisticsProfile extends User {
@@ -59,10 +59,10 @@ export interface LogisticsProfile extends User {
 }
 
 export enum VehicleType {
-  MOTORCYCLE = 'MOTORCYCLE',
-  CAR = 'CAR',
-  VAN = 'VAN',
-  TRUCK = 'TRUCK',
+  MOTORCYCLE = 'motorcycle',
+  CAR = 'car',
+  VAN = 'van',
+  TRUCK = 'truck',
 }
 
 export interface Location {

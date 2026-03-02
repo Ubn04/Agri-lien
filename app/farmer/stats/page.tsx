@@ -50,30 +50,54 @@ export default function FarmerStats() {
       const productsData = await productsRes.json();
       const ordersData = await ordersRes.json();
 
-      const myProducts = productsData.products?.filter((p: any) => p.farmerId === user?.id) || [];
-      const myOrders = ordersData.orders?.filter((o: any) =>
-        o.items?.some((item: any) => myProducts.find((p: any) => p.id === item.product?.id))
-      ) || [];
+      // Vérifications de sécurité
+      if (!productsData.success || !ordersData.success) {
+        console.error('API error:', { productsData, ordersData });
+        setLoading(false);
+        return;
+      }
 
-      const totalRevenue = myOrders.reduce((sum: number, o: any) => sum + o.total, 0);
+      const allProducts = productsData.products || productsData.data?.products || [];
+      const allOrders = ordersData.orders || ordersData.data?.orders || [];
+
+      const myProducts = allProducts.filter((p: any) => p.farmerId === user?.id);
+      const myOrders = allOrders.filter((o: any) =>
+        o.items?.some((item: any) => {
+          const productId = item.product?.id || item.productId;
+          return myProducts.find((p: any) => p.id === productId);
+        })
+      );
+
+      const totalRevenue = myOrders.reduce((sum: number, o: any) => {
+        const amount = o.totalAmount || o.total || 0;
+        return sum + (typeof amount === 'number' ? amount : 0);
+      }, 0);
+      
       const totalOrders = myOrders.length;
       const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
       const productSales = myProducts.map((product: any) => {
         const sales = myOrders
-          .flatMap((o: any) => o.items)
-          .filter((item: any) => item.product?.id === product.id)
-          .reduce((sum: number, item: any) => sum + item.quantity, 0);
+          .flatMap((o: any) => o.items || [])
+          .filter((item: any) => {
+            const productId = item.product?.id || item.productId;
+            return productId === product.id;
+          })
+          .reduce((sum: number, item: any) => {
+            const quantity = item.quantity || 0;
+            return sum + (typeof quantity === 'number' ? quantity : 0);
+          }, 0);
 
+        const price = product.price || 0;
         return {
-          name: product.name,
+          name: product.name || 'Produit sans nom',
           sales,
-          revenue: sales * product.price,
+          revenue: sales * (typeof price === 'number' ? price : 0),
         };
       });
 
       const topProducts = productSales
-        .sort((a, b) => b.revenue - a.revenue)
+        .sort((a: any, b: any) => b.revenue - a.revenue)
         .slice(0, 5);
 
       const now = new Date();
@@ -81,13 +105,21 @@ export default function FarmerStats() {
       for (let i = 5; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const monthOrders = myOrders.filter((o: any) => {
-          const orderDate = new Date(o.createdAt);
-          return (
-            orderDate.getMonth() === date.getMonth() &&
-            orderDate.getFullYear() === date.getFullYear()
-          );
+          try {
+            const orderDate = new Date(o.createdAt);
+            if (isNaN(orderDate.getTime())) return false;
+            return (
+              orderDate.getMonth() === date.getMonth() &&
+              orderDate.getFullYear() === date.getFullYear()
+            );
+          } catch {
+            return false;
+          }
         });
-        const monthRevenue = monthOrders.reduce((sum: number, o: any) => sum + o.total, 0);
+        const monthRevenue = monthOrders.reduce((sum: number, o: any) => {
+          const amount = o.totalAmount || o.total || 0;
+          return sum + (typeof amount === 'number' ? amount : 0);
+        }, 0);
 
         monthlyData.push({
           month: date.toLocaleDateString('fr-FR', { month: 'short' }),
@@ -103,20 +135,30 @@ export default function FarmerStats() {
           : 0;
 
       const lastMonthOrders = myOrders.filter((o: any) => {
-        const orderDate = new Date(o.createdAt);
-        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        return (
-          orderDate.getMonth() === lastMonth.getMonth() &&
-          orderDate.getFullYear() === lastMonth.getFullYear()
-        );
+        try {
+          const orderDate = new Date(o.createdAt);
+          if (isNaN(orderDate.getTime())) return false;
+          const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          return (
+            orderDate.getMonth() === lastMonth.getMonth() &&
+            orderDate.getFullYear() === lastMonth.getFullYear()
+          );
+        } catch {
+          return false;
+        }
       }).length;
 
       const currentMonthOrders = myOrders.filter((o: any) => {
-        const orderDate = new Date(o.createdAt);
-        return (
-          orderDate.getMonth() === now.getMonth() &&
-          orderDate.getFullYear() === now.getFullYear()
-        );
+        try {
+          const orderDate = new Date(o.createdAt);
+          if (isNaN(orderDate.getTime())) return false;
+          return (
+            orderDate.getMonth() === now.getMonth() &&
+            orderDate.getFullYear() === now.getFullYear()
+          );
+        } catch {
+          return false;
+        }
       }).length;
 
       const ordersGrowth =

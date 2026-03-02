@@ -120,6 +120,17 @@
   }
 }
 
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes successPop {
   0% {
     transform: scale(0.9);
@@ -131,6 +142,27 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
   }
 }
 
@@ -146,8 +178,20 @@
   animation: toastIn 0.3s ease-out;
 }
 
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
 .animate-success-pop {
   animation: successPop 0.4s ease-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }
 
 .skeleton {

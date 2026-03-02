@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
+    
+    console.log('🔐 Tentative de connexion pour:', email)
 
     // Validation
     if (!email || !password) {
@@ -17,15 +19,21 @@ export async function POST(request: Request) {
     // Vérifier l'utilisateur
     const user = mockDB.findUserByEmail(email)
     if (!user) {
+      console.log('❌ Utilisateur non trouvé:', email)
       return NextResponse.json(
         { success: false, message: 'Email ou mot de passe incorrect' },
         { status: 401 }
       )
     }
+    
+    console.log('✅ Utilisateur trouvé:', user.email, '- Rôle:', user.role)
 
     // Vérifier le mot de passe
     const isPasswordValid = mockDB.verifyUserPassword(email, password)
+    console.log('🔑 Mot de passe valide:', isPasswordValid)
+    
     if (!isPasswordValid) {
+      console.log('❌ Mot de passe incorrect pour:', email)
       return NextResponse.json(
         { success: false, message: 'Email ou mot de passe incorrect' },
         { status: 401 }
@@ -34,6 +42,7 @@ export async function POST(request: Request) {
 
     // Créer une session
     const token = mockDB.createSession(user.id)
+    console.log('🎫 Session créée, token:', token.substring(0, 10) + '...')
 
     // Définir le cookie
     const cookieStore = await cookies()
@@ -43,6 +52,8 @@ export async function POST(request: Request) {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 jours
     })
+    
+    console.log('✅ Connexion réussie pour:', email)
 
     return NextResponse.json({
       success: true,
@@ -53,7 +64,7 @@ export async function POST(request: Request) {
       },
     })
   } catch (error) {
-    console.error('Login error:', error)
+    console.error('❌ Login error:', error)
     return NextResponse.json(
       { success: false, message: 'Erreur lors de la connexion' },
       { status: 500 }

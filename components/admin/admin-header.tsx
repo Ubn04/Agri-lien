@@ -1,12 +1,13 @@
 'use client'
 
-import { Bell, Search, Settings, Moon, Sun } from 'lucide-react'
+import { Search, Settings, Moon, Sun } from 'lucide-react'
 import { useAuth } from '@/components/providers/auth-provider'
-import { useState } from 'react'
+import { useTheme } from '@/components/providers/theme-provider'
+import { NotificationDropdown } from '@/components/shared/notification-dropdown'
 
 export function AdminHeader() {
   const { user } = useAuth()
-  const [darkMode, setDarkMode] = useState(true)
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <header className="h-16 bg-gray-800 border-b border-gray-700 sticky top-0 z-40">
@@ -27,17 +28,14 @@ export function AdminHeader() {
         <div className="flex items-center gap-4 ml-6">
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={toggleTheme}
             className="p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
           >
-            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
 
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+          <NotificationDropdown />
 
           {/* Settings */}
           <button className="p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors">

@@ -14,6 +14,19 @@ export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [stockFilter, setStockFilter] = useState<string>('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    unit: 'kg',
+    category: 'Légumes',
+    stock: '',
+    location: '',
+    image: '',
+  });
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -28,7 +41,8 @@ export default function AdminProductsPage() {
     try {
       const response = await fetch('/api/products');
       const data = await response.json();
-      setProducts(data.products || []);
+      const products = data.data?.products || data.products || [];
+      setProducts(products);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -55,6 +69,81 @@ export default function AdminProductsPage() {
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Erreur lors de la suppression');
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Vérifier le type de fichier
+      if (!file.type.startsWith('image/')) {
+        alert('Veuillez sélectionner une image valide');
+        return;
+      }
+
+      // Vérifier la taille (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('L\'image ne doit pas dépasser 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImagePreview(base64String);
+        setFormData({ ...formData, image: base64String });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddLoading(true);
+
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          price: parseFloat(formData.price),
+          unit: formData.unit,
+          category: formData.category,
+          stock: parseInt(formData.stock),
+          location: formData.location,
+          images: formData.image ? [formData.image] : [],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Produit ajouté avec succès');
+        setShowAddModal(false);
+        setFormData({
+          name: '',
+          description: '',
+          price: '',
+          unit: 'kg',
+          category: 'Légumes',
+          stock: '',
+          location: '',
+          image: '',
+        });
+        setImagePreview('');
+        fetchProducts();
+      } else {
+        alert(data.message || 'Erreur lors de l\'ajout du produit');
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('Erreur lors de l\'ajout du produit');
+    } finally {
+      setAddLoading(false);
     }
   };
 
@@ -125,7 +214,10 @@ export default function AdminProductsPage() {
             <h1 className="text-3xl font-bold text-white mb-2">Gestion des Produits</h1>
             <p className="text-gray-400">{filteredProducts.length} produit(s) trouvé(s)</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition-all">
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition-all"
+          >
             <Plus className="w-5 h-5" />
             Ajouter un produit
           </button>
@@ -230,9 +322,9 @@ export default function AdminProductsPage() {
             >
               {/* Product Image */}
               <div className="relative h-48 bg-gray-700">
-                {product.image ? (
+                {product.images && product.images.length > 0 ? (
                   <img
-                    src={product.image}
+                    src={product.images[0]}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -305,6 +397,229 @@ export default function AdminProductsPage() {
           </div>
         )}
       </div>
+
+      {/* Modal d'ajout de produit */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">Ajouter un produit</h2>
+                <button
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setFormData({
+                      name: '',
+                      description: '',
+                      price: '',
+                      unit: 'kg',
+                      category: 'Légumes',
+                      stock: '',
+                      location: '',
+                      image: '',
+                    });
+                    setImagePreview('');
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleAddProduct} className="p-6 space-y-6">
+              {/* Upload d'image */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Image du produit *
+                </label>
+                <div className="flex flex-col items-center gap-4">
+                  {imagePreview ? (
+                    <div className="relative w-full h-48 bg-gray-700 rounded-lg overflow-hidden">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImagePreview('');
+                          setFormData({ ...formData, image: '' });
+                        }}
+                        className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="w-full h-48 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 transition-colors">
+                      <Package className="w-12 h-12 text-gray-500 mb-2" />
+                      <span className="text-sm text-gray-400">Cliquez pour télécharger une image</span>
+                      <span className="text-xs text-gray-500 mt-1">PNG, JPG jusqu'à 5MB</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              {/* Nom */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Nom du produit *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Ex: Tomates fraîches"
+                  required
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Décrivez votre produit..."
+                />
+              </div>
+
+              {/* Prix et Unité */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Prix (FCFA) *
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="1500"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Unité *
+                  </label>
+                  <select
+                    value={formData.unit}
+                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="kg">kg</option>
+                    <option value="pièce">pièce</option>
+                    <option value="litre">litre</option>
+                    <option value="sac">sac</option>
+                    <option value="boite">boite</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Catégorie et Stock */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Catégorie *
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="Légumes">Légumes</option>
+                    <option value="Fruits">Fruits</option>
+                    <option value="Céréales">Céréales</option>
+                    <option value="Tubercules">Tubercules</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Stock *
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="100"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Localisation */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Localisation *
+                </label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Ex: Abomey-Calavi"
+                  required
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setFormData({
+                      name: '',
+                      description: '',
+                      price: '',
+                      unit: 'kg',
+                      category: 'Légumes',
+                      stock: '',
+                      location: '',
+                      image: '',
+                    });
+                    setImagePreview('');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  disabled={addLoading}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={addLoading}
+                >
+                  {addLoading ? 'Ajout en cours...' : 'Ajouter le produit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

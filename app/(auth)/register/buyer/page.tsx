@@ -2,12 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { User, Mail, Phone, MapPin, Lock, ArrowLeft, CheckCircle, ShoppingBag } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Lock, ArrowLeft, CheckCircle, ShoppingBag, AlertCircle, Loader2 } from 'lucide-react'
 
 export default function BuyerRegisterPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -24,16 +28,63 @@ export default function BuyerRegisterPage() {
       ...formData,
       [e.target.name]: e.target.value,
     })
+    setError('') // Clear error on input change
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement registration logic
-    console.log('Buyer Registration:', formData)
+    setError('')
+    
+    // Validation des mots de passe
+    if (formData.password !== formData.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas')
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          role: 'buyer',
+          metadata: {
+            address: formData.address,
+            city: formData.city,
+          },
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de l\'inscription')
+      }
+
+      // Redirection vers le tableau de bord acheteur après inscription réussie
+      router.push('/buyer/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Une erreur est survenue. Veuillez réessayer.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 px-4 py-12 page-transition">
+    <div className="min-h-screen bg-white px-4 py-12 page-transition">
       <div className="container mx-auto max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
@@ -58,8 +109,8 @@ export default function BuyerRegisterPage() {
         </div>
 
         {/* Form Card */}
-        <Card className="shadow-xl border-0 hover-lift animate-scale-in">
-          <CardContent className="p-8 lg:p-12">
+        <Card className="bg-white shadow-xl border border-gray-200 hover-lift animate-scale-in">
+          <CardContent className="p-8 lg:p-12 bg-white">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -74,7 +125,7 @@ export default function BuyerRegisterPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="Marie"
                       required
                     />
@@ -93,7 +144,7 @@ export default function BuyerRegisterPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="Dosso"
                       required
                     />
@@ -114,7 +165,7 @@ export default function BuyerRegisterPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="marie.dosso@exemple.com"
                     required
                   />
@@ -134,7 +185,7 @@ export default function BuyerRegisterPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="+229 XX XX XX XX"
                     required
                   />
@@ -156,7 +207,7 @@ export default function BuyerRegisterPage() {
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="Ex: Rue 123, Quartier Akpakpa"
                     required
                   />
@@ -171,7 +222,7 @@ export default function BuyerRegisterPage() {
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="h-12"
+                  className="h-12 bg-white"
                   placeholder="Ex: Cotonou"
                   required
                 />
@@ -191,7 +242,7 @@ export default function BuyerRegisterPage() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="••••••••"
                       required
                     />
@@ -211,7 +262,7 @@ export default function BuyerRegisterPage() {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="••••••••"
                       required
                     />
@@ -244,11 +295,26 @@ export default function BuyerRegisterPage() {
                 </ul>
               </div>
 
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+
               <Button 
-                type="submit"
+                type="submit" 
                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold press-feedback"
+                disabled={loading}
               >
-                Créer mon compte acheteur
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Création en cours...
+                  </>
+                ) : (
+                  'Créer mon compte'
+                )}
               </Button>
             </form>
           </CardContent>

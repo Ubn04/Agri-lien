@@ -2,13 +2,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bell, AlertCircle, CheckCircle, Info, TrendingUp } from 'lucide-react'
+import { useNotification } from '@/components/providers/notification-provider'
 
 export function Notifications() {
+  const { addNotification } = useNotification()
+  
   // NOTE: Notifications importantes pour l'agriculteur
   const notifications = [
     {
       id: 1,
-      type: 'success',
+      type: 'success' as const,
       icon: CheckCircle,
       title: 'Nouvelle commande',
       message: 'Restaurant Le Palmier a commandé 50kg d\'igname',
@@ -18,7 +21,7 @@ export function Notifications() {
     },
     {
       id: 2,
-      type: 'info',
+      type: 'info' as const,
       icon: Info,
       title: 'Stock faible',
       message: 'Ananas : Plus que 5 unités disponibles',
@@ -28,7 +31,7 @@ export function Notifications() {
     },
     {
       id: 3,
-      type: 'warning',
+      type: 'warning' as const,
       icon: AlertCircle,
       title: 'Mise à jour requise',
       message: 'Mettez à jour les prix de vos tomates',
@@ -38,7 +41,7 @@ export function Notifications() {
     },
     {
       id: 4,
-      type: 'trend',
+      type: 'info' as const,
       icon: TrendingUp,
       title: 'Performance',
       message: 'Vos ventes sont en hausse de 23% cette semaine',
@@ -47,6 +50,13 @@ export function Notifications() {
       bgColor: 'bg-agri-green-50',
     },
   ]
+
+  const handleNotificationClick = (notification: typeof notifications[0]) => {
+    addNotification({
+      type: notification.type,
+      message: `${notification.title}: ${notification.message}`,
+    })
+  }
 
   return (
     <Card className="border-2 border-gray-100">
@@ -66,6 +76,7 @@ export function Notifications() {
           {notifications.map((notification) => (
             <div
               key={notification.id}
+              onClick={() => handleNotificationClick(notification)}
               className={`${notification.bgColor} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-gray-200`}
             >
               <div className="flex items-start gap-4">

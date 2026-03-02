@@ -31,7 +31,10 @@ export function Navigation() {
 
           <div className="hidden md:flex items-center space-x-4">
             <Link href="/login">
-              <Button variant="ghost">
+              <Button 
+                variant="outline"
+                className="bg-gray-100 text-gray-700 border-gray-300 hover:bg-yellow-400 hover:text-gray-900 hover:border-yellow-400 transition-colors"
+              >
                 <User className="h-5 w-5 mr-2" />
                 Connexion
               </Button>
@@ -64,7 +67,12 @@ export function Navigation() {
             </Link>
             <div className="pt-3 space-y-2">
               <Link href="/login" className="block">
-                <Button variant="ghost" className="w-full">Connexion</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full bg-gray-100 text-gray-700 border-gray-300 hover:bg-yellow-400 hover:text-gray-900 hover:border-yellow-400 transition-colors"
+                >
+                  Connexion
+                </Button>
               </Link>
               <Link href="/register" className="block">
                 <Button className="w-full">S'inscrire</Button>

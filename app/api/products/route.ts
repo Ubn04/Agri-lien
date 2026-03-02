@@ -55,19 +55,36 @@ export async function POST(request: Request) {
     }
 
     const user = mockDB.findUserById(session.userId)
-    if (!user || user.role !== 'farmer') {
+    if (!user) {
       return NextResponse.json(
-        { success: false, message: 'Seuls les fermiers peuvent ajouter des produits' },
+        { success: false, message: 'Utilisateur non trouvé' },
+        { status: 404 }
+      )
+    }
+
+    // Autoriser les fermiers et les admins
+    if (user.role !== 'farmer' && user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, message: 'Non autorisé à ajouter des produits' },
         { status: 403 }
       )
     }
 
     const productData = await request.json()
 
+    // Si c'est un admin qui crée le produit, utiliser le farmerId fourni ou un défaut
+    const farmerId = user.role === 'admin' 
+      ? (productData.farmerId || user.id)
+      : user.id
+    
+    const farmerName = user.role === 'admin'
+      ? (productData.farmerName || 'Admin')
+      : `${user.firstName} ${user.lastName}`
+
     const newProduct = mockDB.createProduct({
       ...productData,
-      farmerId: user.id,
-      farmerName: `${user.firstName} ${user.lastName}`,
+      farmerId,
+      farmerName,
       images: productData.images || [],
     })
 

@@ -47,11 +47,11 @@ export default function LogisticsHeader() {
           {/* User Profile */}
           <div className="flex items-center gap-3 pl-4 border-l border-gray-700">
             <div className="text-right">
-              <p className="text-sm font-medium text-white">{user?.name || 'Utilisateur'}</p>
+              <p className="text-sm font-medium text-white">{user ? `${user.firstName} ${user.lastName}` : 'Utilisateur'}</p>
               <p className="text-xs text-gray-400">Logistique</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-semibold">
-              {user?.name?.[0] || 'L'}
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+              {user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : 'L'}
             </div>
           </div>
         </div>

@@ -11,6 +11,8 @@ export default function RegisterPage() {
       href: '/register/farmer',
       color: 'bg-agri-green-100 text-agri-green-600',
       gradient: 'from-agri-green-400 to-agri-green-600',
+      borderColor: 'border-agri-green-200 hover:border-agri-green-400',
+      shadowColor: 'hover:shadow-agri-green-200',
       benefits: ['Vendre sans intermédiaire', 'Gérer vos stocks', 'Suivi des commandes'],
     },
     {
@@ -20,6 +22,8 @@ export default function RegisterPage() {
       href: '/register/buyer',
       color: 'bg-blue-100 text-blue-600',
       gradient: 'from-blue-400 to-blue-600',
+      borderColor: 'border-blue-200 hover:border-blue-400',
+      shadowColor: 'hover:shadow-blue-200',
       benefits: ['Produits frais', 'Prix directs fermiers', 'Livraison rapide'],
     },
     {
@@ -29,12 +33,14 @@ export default function RegisterPage() {
       href: '/register/logistics',
       color: 'bg-agri-ochre-100 text-agri-ochre-600',
       gradient: 'from-agri-ochre-400 to-agri-ochre-600',
+      borderColor: 'border-agri-ochre-200 hover:border-agri-ochre-400',
+      shadowColor: 'hover:shadow-agri-ochre-200',
       benefits: ['Revenus supplémentaires', 'Routes optimisées', 'Paiements sécurisés'],
     },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-agri-green-50 page-transition">
+    <div className="min-h-screen bg-white page-transition">
       <div className="container mx-auto px-4 py-12 lg:py-20">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
@@ -56,10 +62,10 @@ export default function RegisterPage() {
           {roles.map((role, index) => (
             <Link key={index} href={role.href}>
               <Card 
-                className="hover-lift press-feedback cursor-pointer h-full border-2 hover:border-agri-green-300 transition-all group animate-scale-in"
+                className={`bg-white hover-lift press-feedback cursor-pointer h-full border-[3px] ${role.borderColor} ${role.shadowColor} shadow-lg hover:shadow-2xl transition-all group animate-scale-in rounded-2xl`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <CardContent className="p-8">
+                <CardContent className="p-8 bg-white">
                   {/* Icon with gradient background */}
                   <div className="relative mb-6">
                     <div className={`h-20 w-20 bg-gradient-to-br ${role.gradient} rounded-2xl flex items-center justify-center mx-auto shadow-lg group-hover:scale-110 transition-transform`}>

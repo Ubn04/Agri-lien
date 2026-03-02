@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
-import { Search, Bell, Settings, Sun, Moon, ShoppingCart } from 'lucide-react';
+import { useTheme } from '@/components/providers/theme-provider';
+import { NotificationDropdown } from '@/components/shared/notification-dropdown';
+import { Search, Settings, Sun, Moon, ShoppingCart } from 'lucide-react';
 
 export default function BuyerHeader() {
   const { user } = useAuth();
-  const [darkMode, setDarkMode] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-10 bg-gray-800 border-b border-gray-700 px-8 py-4">
@@ -25,10 +26,10 @@ export default function BuyerHeader() {
         <div className="flex items-center gap-4 ml-6">
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={toggleTheme}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all"
           >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
           {/* Cart Icon */}
@@ -38,10 +39,7 @@ export default function BuyerHeader() {
           </button>
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+          <NotificationDropdown />
 
           {/* Settings */}
           <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all">
@@ -56,7 +54,7 @@ export default function BuyerHeader() {
               </span>
             </div>
             <div className="hidden md:block">
-              <p className="text-white text-sm font-medium">{user?.name}</p>
+              <p className="text-white text-sm font-medium">{user ? `${user.firstName} ${user.lastName}` : 'Acheteur'}</p>
               <p className="text-gray-400 text-xs">Acheteur</p>
             </div>
           </div>

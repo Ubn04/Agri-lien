@@ -62,12 +62,18 @@ export default function FarmerOrders() {
       const productsData = await productsRes.json();
       const ordersData = await ordersRes.json();
 
-      const myProducts = productsData.products?.filter((p: any) => p.farmerId === user?.id) || [];
+      const allProducts = productsData.products || productsData.data?.products || [];
+      const allOrders = ordersData.orders || ordersData.data?.orders || [];
+
+      const myProducts = allProducts.filter((p: any) => p.farmerId === user?.id);
       setProducts(myProducts);
 
-      const myOrders = ordersData.orders?.filter((o: Order) =>
-        o.items?.some((item: any) => myProducts.find((p: any) => p.id === item.product?.id))
-      ) || [];
+      const myOrders = allOrders.filter((o: any) =>
+        o.items?.some((item: any) => {
+          const productId = item.product?.id || item.productId;
+          return myProducts.find((p: any) => p.id === productId);
+        })
+      );
       setOrders(myOrders);
     } catch (error) {
       console.error('Error fetching data:', error);

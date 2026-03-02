@@ -2,12 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { User, Mail, Phone, MapPin, Lock, ArrowLeft, CheckCircle, Truck, FileText } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Lock, ArrowLeft, CheckCircle, Truck, FileText, AlertCircle, Loader2 } from 'lucide-react'
 
 export default function LogisticsRegisterPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -27,16 +31,66 @@ export default function LogisticsRegisterPage() {
       ...formData,
       [e.target.name]: e.target.value,
     })
+    setError('') // Clear error on input change
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement registration logic
-    console.log('Logistics Registration:', formData)
+    setError('')
+    
+    // Validation des mots de passe
+    if (formData.password !== formData.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas')
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          role: 'logistics',
+          metadata: {
+            companyName: formData.companyName,
+            vehicleType: formData.vehicleType,
+            vehicleNumber: formData.vehicleNumber,
+            operatingZone: formData.operatingZone,
+            licenseNumber: formData.licenseNumber,
+          },
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de l\'inscription')
+      }
+
+      // Redirection vers le tableau de bord logistique après inscription réussie
+      router.push('/logistics/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Une erreur est survenue. Veuillez réessayer.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-agri-ochre-50 via-white to-gray-50 px-4 py-12 page-transition">
+    <div className="min-h-screen bg-white px-4 py-12 page-transition">
       <div className="container mx-auto max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
@@ -61,8 +115,8 @@ export default function LogisticsRegisterPage() {
         </div>
 
         {/* Form Card */}
-        <Card className="shadow-xl border-0 hover-lift animate-scale-in">
-          <CardContent className="p-8 lg:p-12">
+        <Card className="bg-white shadow-xl border border-gray-200 hover-lift animate-scale-in">
+          <CardContent className="p-8 lg:p-12 bg-white">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -77,7 +131,7 @@ export default function LogisticsRegisterPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="Sébastien"
                       required
                     />
@@ -96,7 +150,7 @@ export default function LogisticsRegisterPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="Ahouansou"
                       required
                     />
@@ -117,7 +171,7 @@ export default function LogisticsRegisterPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="sebastien@exemple.com"
                     required
                   />
@@ -137,7 +191,7 @@ export default function LogisticsRegisterPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="+229 XX XX XX XX"
                     required
                   />
@@ -155,7 +209,7 @@ export default function LogisticsRegisterPage() {
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleChange}
-                  className="h-12"
+                  className="h-12 bg-white"
                   placeholder="Ex: Transport Express Bénin"
                 />
               </div>
@@ -169,7 +223,7 @@ export default function LogisticsRegisterPage() {
                     name="vehicleType"
                     value={formData.vehicleType}
                     onChange={handleChange}
-                    className="w-full h-12 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-ochre-500"
+                    className="w-full h-12 px-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-ochre-500"
                     required
                   >
                     <option value="">Sélectionner...</option>
@@ -188,7 +242,7 @@ export default function LogisticsRegisterPage() {
                     name="vehicleNumber"
                     value={formData.vehicleNumber}
                     onChange={handleChange}
-                    className="h-12"
+                    className="h-12 bg-white"
                     placeholder="Ex: AB-1234-BJ"
                     required
                   />
@@ -207,7 +261,7 @@ export default function LogisticsRegisterPage() {
                     name="operatingZone"
                     value={formData.operatingZone}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="Ex: Cotonou, Porto-Novo"
                     required
                   />
@@ -229,7 +283,7 @@ export default function LogisticsRegisterPage() {
                     name="licenseNumber"
                     value={formData.licenseNumber}
                     onChange={handleChange}
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 bg-white"
                     placeholder="Numéro de permis"
                     required
                   />
@@ -250,7 +304,7 @@ export default function LogisticsRegisterPage() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="••••••••"
                       required
                     />
@@ -270,7 +324,7 @@ export default function LogisticsRegisterPage() {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="pl-10 h-12"
+                      className="pl-10 h-12 bg-white"
                       placeholder="••••••••"
                       required
                     />
@@ -303,11 +357,26 @@ export default function LogisticsRegisterPage() {
                 </ul>
               </div>
 
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+
               <Button 
-                type="submit"
+                type="submit" 
                 className="w-full h-12 bg-agri-ochre-600 hover:bg-agri-ochre-700 text-white font-semibold press-feedback"
+                disabled={loading}
               >
-                Créer mon compte logistique
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Création en cours...
+                  </>
+                ) : (
+                  'Créer mon compte'
+                )}
               </Button>
             </form>
           </CardContent>

@@ -33,8 +33,12 @@ export function ProductCardEnhanced({ product, onAddToCart, viewMode }: ProductC
         <CardContent className="p-6">
           <div className="flex items-center gap-6">
             {/* Image */}
-            <div className="w-32 h-32 bg-gradient-to-br from-agri-green-100 to-agri-gold-100 rounded-xl flex items-center justify-center text-6xl flex-shrink-0">
-              {product.image}
+            <div className="w-32 h-32 rounded-xl flex-shrink-0 overflow-hidden">
+              <img 
+                src={product.image} 
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Infos */}
@@ -95,8 +99,12 @@ export function ProductCardEnhanced({ product, onAddToCart, viewMode }: ProductC
       <CardContent className="p-0">
         {/* Image */}
         <div className="relative">
-          <div className="aspect-square bg-gradient-to-br from-agri-green-100 to-agri-gold-100 rounded-t-xl flex items-center justify-center text-8xl">
-            {product.image}
+          <div className="aspect-square rounded-t-xl overflow-hidden">
+            <img 
+              src={product.image} 
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            />
           </div>
           {/* Badge qualité */}
           <Badge className="absolute top-3 right-3 bg-agri-gold-400 text-gray-900 border-0">

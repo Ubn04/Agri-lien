@@ -1,6 +1,9 @@
 // Mock Database - Simule une base de données pour le développement
 // En production, remplacer par une vraie base de données (PostgreSQL, MongoDB, etc.)
 
+import fs from 'fs'
+import path from 'path'
+
 // Types simplifiés pour la compatibilité
 interface User {
   id: string
@@ -206,6 +209,94 @@ const passwords = new Map<string, string>([
   ['logistique@test.bj', hashPassword('logistique123')],
 ])
 
+// Chemin du fichier de persistance
+const DB_FILE_PATH = path.join(process.cwd(), 'data', 'mock-db.json')
+
+// Fonction pour sauvegarder les données
+const saveData = () => {
+  try {
+    const dataDir = path.dirname(DB_FILE_PATH)
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+    
+    const dataToSave = {
+      users: db.users,
+      products: db.products,
+      orders: db.orders,
+      passwords: Array.from(passwords.entries()),
+      sessions: Array.from(db.sessions.entries()).map(([token, session]) => ([
+        token,
+        {
+          userId: session.userId,
+          expiresAt: session.expiresAt.toISOString(),
+        },
+      ])),
+    }
+    
+    fs.writeFileSync(DB_FILE_PATH, JSON.stringify(dataToSave, null, 2))
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des données:', error)
+  }
+}
+
+// Fonction pour charger les données
+const loadData = () => {
+  try {
+    if (fs.existsSync(DB_FILE_PATH)) {
+      const fileContent = fs.readFileSync(DB_FILE_PATH, 'utf-8')
+      const data = JSON.parse(fileContent)
+      
+      if (data.users) {
+        db.users = data.users.map((u: any) => ({
+          ...u,
+          createdAt: new Date(u.createdAt),
+        }))
+      }
+      
+      if (data.products) {
+        db.products = data.products.map((p: any) => ({
+          ...p,
+          createdAt: new Date(p.createdAt),
+        }))
+      }
+      
+      if (data.orders) {
+        db.orders = data.orders.map((o: any) => ({
+          ...o,
+          createdAt: new Date(o.createdAt),
+          updatedAt: new Date(o.updatedAt),
+        }))
+      }
+      
+      if (data.passwords) {
+        data.passwords.forEach(([email, hash]: [string, string]) => {
+          passwords.set(email, hash)
+        })
+      }
+      
+      if (data.sessions) {
+        data.sessions.forEach(([token, session]: [string, any]) => {
+          db.sessions.set(token, {
+            userId: session.userId,
+            expiresAt: new Date(session.expiresAt),
+          })
+        })
+      }
+      
+      console.log('✅ Données chargées depuis le fichier')
+    } else {
+      console.log('📝 Aucun fichier de données trouvé, utilisation des données par défaut')
+      saveData() // Sauvegarder les données par défaut
+    }
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement des données:', error)
+  }
+}
+
+// Charger les données au démarrage
+loadData()
+
 export const mockDB = {
   // Users
   findUserByEmail: (email: string): User | undefined => {
@@ -223,7 +314,10 @@ export const mockDB = {
   deleteUser: (id: string): boolean => {
     const index = db.users.findIndex(u => u.id === id)
     if (index === -1) return false
+    const user = db.users[index]
+    passwords.delete(user.email)
     db.users.splice(index, 1)
+    saveData() // Sauvegarder après suppression
     return true
   },
 
@@ -236,6 +330,7 @@ export const mockDB = {
     }
     db.users.push(newUser)
     passwords.set(userData.email, hashPassword(password))
+    saveData() // Sauvegarder après création
     return newUser
   },
 
@@ -250,6 +345,7 @@ export const mockDB = {
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 7) // 7 jours
     db.sessions.set(token, { userId, expiresAt })
+    saveData() // Sauvegarder après création de session
     return token
   },
 
@@ -260,12 +356,14 @@ export const mockDB = {
     }
     if (session) {
       db.sessions.delete(token) // Supprimer session expirée
+      saveData() // Sauvegarder après suppression
     }
     return undefined
   },
 
   deleteSession: (token: string): void => {
     db.sessions.delete(token)
+    saveData() // Sauvegarder après suppression de session
   },
 
   // Products
@@ -288,6 +386,7 @@ export const mockDB = {
       ...productData,
     }
     db.products.push(newProduct)
+    saveData() // Sauvegarder après création
     return newProduct
   },
 
@@ -295,6 +394,7 @@ export const mockDB = {
     const index = db.products.findIndex(p => p.id === id)
     if (index === -1) return undefined
     db.products[index] = { ...db.products[index], ...updates }
+    saveData() // Sauvegarder après mise à jour
     return db.products[index]
   },
 
@@ -302,29 +402,49 @@ export const mockDB = {
     const index = db.products.findIndex(p => p.id === id)
     if (index === -1) return false
     db.products.splice(index, 1)
+    saveData() // Sauvegarder après suppression
     return true
   },
 
   // Orders
-  getAllOrders: (): Order[] => {
-    return [...db.orders]
-  },
-
-  getOrderById: (id: string): Order | undefined => {
-    return db.orders.find(o => o.id === id)
-  },
-
-  getOrdersByBuyer: (buyerId: string): Order[] => {
-    return db.orders.filter(o => o.buyerId === buyerId)
-  },
-
-  getOrdersByFarmer: (farmerId: string): Order[] => {
-    return db.orders.filter(o => 
-      o.items.some(item => {
+  // Helper pour enrichir les commandes avec les données produit
+  enrichOrderWithProducts: (order: any) => {
+    return {
+      ...order,
+      items: order.items.map((item: any) => {
         const product = db.products.find(p => p.id === item.productId)
-        return product?.farmerId === farmerId
+        return {
+          ...item,
+          product: product || null
+        }
       })
-    )
+    }
+  },
+
+  getAllOrders: (): any[] => {
+    return db.orders.map(mockDB.enrichOrderWithProducts)
+  },
+
+  getOrderById: (id: string): any | undefined => {
+    const order = db.orders.find(o => o.id === id)
+    return order ? mockDB.enrichOrderWithProducts(order) : undefined
+  },
+
+  getOrdersByBuyer: (buyerId: string): any[] => {
+    return db.orders
+      .filter(o => o.buyerId === buyerId)
+      .map(mockDB.enrichOrderWithProducts)
+  },
+
+  getOrdersByFarmer: (farmerId: string): any[] => {
+    return db.orders
+      .filter(o => 
+        o.items.some(item => {
+          const product = db.products.find(p => p.id === item.productId)
+          return product?.farmerId === farmerId
+        })
+      )
+      .map(mockDB.enrichOrderWithProducts)
   },
 
   createOrder: (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Order => {
@@ -344,6 +464,7 @@ export const mockDB = {
       }
     })
     
+    saveData() // Sauvegarder après création
     return newOrder
   },
 
@@ -352,6 +473,7 @@ export const mockDB = {
     if (!order) return undefined
     order.status = status
     order.updatedAt = new Date()
+    saveData() // Sauvegarder après mise à jour
     return order
   },
 

@@ -25,7 +25,7 @@ interface Product {
   stock: number;
   farmerId: string;
   location: string;
-  image: string;
+  images: string[];
   createdAt: string;
 }
 
@@ -57,7 +57,8 @@ export default function FarmerProducts() {
       const data = await response.json();
       
       if (data.success) {
-        const myProducts = data.products?.filter((p: Product) => p.farmerId === user?.id) || [];
+        const allProducts = data.data?.products || data.products || [];
+        const myProducts = allProducts.filter((p: Product) => p.farmerId === user?.id);
         setProducts(myProducts);
       }
     } catch (error) {
@@ -275,9 +276,17 @@ export default function FarmerProducts() {
                 className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:shadow-gray-900/50 transition-all group"
               >
                 <div className="relative h-48 bg-gray-700">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Package className="w-16 h-16 text-gray-600" />
-                  </div>
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Package className="w-16 h-16 text-gray-600" />
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3">
                     {getStockBadge(product.stock)}
                   </div>

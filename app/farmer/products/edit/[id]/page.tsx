@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useRouter } from 'next/navigation';
-import { Package, ArrowLeft, Upload, Save, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Package, ArrowLeft, Upload, Save, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
 
-export default function AddProduct() {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditProduct({ params }: PageProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
@@ -17,13 +24,63 @@ export default function AddProduct() {
     unit: 'kg',
     category: 'Légumes',
     stock: '',
-    location: user?.location || '',
+    location: '',
     image: '',
   });
 
+  useEffect(() => {
+    if (!user || user.role !== 'farmer') {
+      router.push('/login');
+      return;
+    }
+    fetchProduct();
+  }, [user, router, params.id]);
+
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch(`/api/products/${params.id}`);
+      const data = await response.json();
+
+      if (data.success && data.data?.product) {
+        const product = data.data.product;
+        
+        // Vérifier que c'est bien un produit du fermier connecté
+        if (product.farmerId !== user?.id) {
+          alert('Vous ne pouvez modifier que vos propres produits');
+          router.push('/farmer/products');
+          return;
+        }
+
+        setFormData({
+          name: product.name || '',
+          description: product.description || '',
+          price: product.price?.toString() || '',
+          unit: product.unit || 'kg',
+          category: product.category || 'Légumes',
+          stock: product.stock?.toString() || '',
+          location: product.location || '',
+          image: product.images?.[0] || '',
+        });
+
+        if (product.images?.[0]) {
+          setImagePreview(product.images[0]);
+        }
+      } else {
+        alert('Produit non trouvé');
+        router.push('/farmer/products');
+      }
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      alert('Erreur lors du chargement du produit');
+      router.push('/farmer/products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.price || !formData.stock) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
@@ -39,11 +96,11 @@ export default function AddProduct() {
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
+      const response = await fetch(`/api/products/${params.id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -62,16 +119,16 @@ export default function AddProduct() {
       const data = await response.json();
 
       if (data.success) {
-        alert('Produit ajouté avec succès !');
+        alert('Produit modifié avec succès !');
         router.push('/farmer/products');
       } else {
-        alert(data.message || 'Erreur lors de l\'ajout du produit');
+        alert(data.message || 'Erreur lors de la modification du produit');
       }
     } catch (error) {
-      console.error('Error adding product:', error);
-      alert('Erreur lors de l\'ajout du produit');
+      console.error('Error updating product:', error);
+      alert('Erreur lors de la modification du produit');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -86,7 +143,7 @@ export default function AddProduct() {
 
       // Vérifier la taille (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('L\'image ne doit pas dépasser 5MB');
+        alert("L'image ne doit pas dépasser 5MB");
         return;
       }
 
@@ -114,6 +171,17 @@ export default function AddProduct() {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Chargement du produit...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-3xl mx-auto space-y-8">
@@ -127,10 +195,10 @@ export default function AddProduct() {
           </button>
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              Ajouter un Produit
+              Modifier le Produit
             </h1>
             <p className="text-gray-400">
-              Remplissez les informations pour mettre en vente un nouveau produit
+              Modifiez les informations de votre produit
             </p>
           </div>
         </div>
@@ -273,7 +341,7 @@ export default function AddProduct() {
               <ImageIcon className="w-5 h-5 text-green-400" />
               Image du Produit
             </h2>
-            
+
             {imagePreview ? (
               <div className="relative">
                 <div className="relative w-full h-64 bg-gray-700 rounded-lg overflow-hidden">
@@ -336,23 +404,24 @@ export default function AddProduct() {
               type="button"
               onClick={() => router.back()}
               className="flex-1 px-6 py-3 bg-gray-800 border border-gray-700 text-white rounded-lg hover:bg-gray-700 transition-all"
+              disabled={saving}
             >
               Annuler
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={saving}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
+              {saving ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Ajout en cours...
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Modification en cours...
                 </>
               ) : (
                 <>
                   <Save className="w-5 h-5" />
-                  Ajouter le Produit
+                  Enregistrer les Modifications
                 </>
               )}
             </button>

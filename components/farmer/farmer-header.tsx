@@ -1,12 +1,13 @@
 'use client'
 
-import { Bell, Search, Settings, Moon, Sun } from 'lucide-react'
+import { Search, Settings, Moon, Sun } from 'lucide-react'
 import { useAuth } from '@/components/providers/auth-provider'
-import { useState } from 'react'
+import { useTheme } from '@/components/providers/theme-provider'
+import { NotificationDropdown } from '@/components/shared/notification-dropdown'
 
 export function FarmerHeader() {
   const { user } = useAuth()
-  const [darkMode, setDarkMode] = useState(true)
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <header className="h-16 bg-gray-800 border-b border-gray-700 sticky top-0 z-40">
@@ -27,17 +28,14 @@ export function FarmerHeader() {
         <div className="flex items-center gap-4 ml-6">
           {/* Dark Mode Toggle */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={toggleTheme}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
           >
-            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+          <NotificationDropdown />
 
           {/* Settings */}
           <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
@@ -47,11 +45,11 @@ export function FarmerHeader() {
           {/* User Profile */}
           <div className="flex items-center gap-3 pl-4 border-l border-gray-700">
             <div className="text-right">
-              <div className="text-sm font-medium text-white">{user?.name || 'Fermier'}</div>
+              <div className="text-sm font-medium text-white">{user ? `${user.firstName} ${user.lastName}` : 'Fermier'}</div>
               <div className="text-xs text-gray-400">Fermier</div>
             </div>
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-semibold">
-              {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'F'}
+              {user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : 'F'}
             </div>
           </div>
         </div>

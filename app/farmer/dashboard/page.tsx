@@ -58,7 +58,7 @@ export default function FarmerDashboard() {
       setStats({
         totalProducts: myProducts.length,
         totalOrders: myOrders.length,
-        totalRevenue: myOrders.reduce((sum: number, o: any) => sum + o.total, 0),
+        totalRevenue: myOrders.reduce((sum: number, o: any) => sum + (o.totalAmount || o.total || 0), 0),
         pendingOrders: myOrders.filter((o: any) => o.status === 'pending').length,
         lowStockProducts: myProducts.filter((p: any) => p.stock > 0 && p.stock <= 10).length,
         ordersThisMonth: myOrders.filter((o: any) => new Date(o.createdAt) >= thisMonth).length,

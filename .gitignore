@@ -39,3 +39,6 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+
+# Mock Database Data (development only)
+/data/

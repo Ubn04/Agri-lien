@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/lib/hooks/useCart';
 import {
   ShoppingCart,
   Trash2,
@@ -17,56 +18,9 @@ import {
 export default function BuyerCart() {
   const { user } = useAuth();
   const router = useRouter();
+  const { cart, updateQuantity, clearItem, clearCart, getTotalPrice } = useCart();
   const [loading, setLoading] = useState(false);
-
-  // Mock cart data - in real app, this would come from state management or API
-  const [cartItems, setCartItems] = useState([
-    {
-      id: '1',
-      productId: 'p1',
-      name: 'Tomates fraîches',
-      price: 500,
-      unit: 'kg',
-      quantity: 3,
-      stock: 50,
-      farmerId: 'f1',
-      location: 'Cotonou, Bénin',
-    },
-    {
-      id: '2',
-      productId: 'p2',
-      name: 'Oignons',
-      price: 300,
-      unit: 'kg',
-      quantity: 2,
-      stock: 30,
-      farmerId: 'f1',
-      location: 'Cotonou, Bénin',
-    },
-  ]);
-
   const [deliveryAddress, setDeliveryAddress] = useState('');
-
-  const updateQuantity = (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) {
-      removeItem(itemId);
-      return;
-    }
-
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeItem = (itemId: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== itemId));
-  };
-
-  const calculateTotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  };
 
   const handleCheckout = async () => {
     if (!deliveryAddress.trim()) {
@@ -74,7 +28,7 @@ export default function BuyerCart() {
       return;
     }
 
-    if (cartItems.length === 0) {
+    if (cart.length === 0) {
       alert('Votre panier est vide');
       return;
     }
@@ -84,12 +38,12 @@ export default function BuyerCart() {
     try {
       const orderData = {
         buyerId: user?.id,
-        items: cartItems.map((item) => ({
-          productId: item.productId,
+        items: cart.map((item) => ({
+          productId: item.id,
           quantity: item.quantity,
         })),
         deliveryAddress,
-        total: calculateTotal(),
+        total: getTotalPrice(),
       };
 
       const response = await fetch('/api/orders', {
@@ -104,7 +58,7 @@ export default function BuyerCart() {
 
       if (data.success) {
         alert('Commande passée avec succès !');
-        setCartItems([]);
+        clearCart();
         router.push('/buyer/orders');
       } else {
         alert(data.message || 'Erreur lors de la commande');
@@ -118,23 +72,23 @@ export default function BuyerCart() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Mon Panier</h1>
-          <p className="text-gray-400">
-            {cartItems.length} article(s) dans votre panier
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mon Panier</h1>
+          <p className="text-gray-600">
+            {cart.length} article(s) dans votre panier
           </p>
         </div>
 
-        {cartItems.length === 0 ? (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
-            <ShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
+        {cart.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-12 text-center shadow-sm">
+            <ShoppingCart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Votre panier est vide
             </h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-gray-600 mb-6">
               Découvrez nos produits et ajoutez-les à votre panier
             </p>
             <button
@@ -149,29 +103,42 @@ export default function BuyerCart() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
+              {cart.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-gray-800 border border-gray-700 rounded-xl p-6 hover:shadow-xl hover:shadow-gray-900/50 transition-all"
+                  className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-24 h-24 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Package className="w-10 h-10 text-gray-600" />
+                    <div className="w-24 h-24 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {item.images && item.images.length > 0 ? (
+                        <img
+                          src={item.images[0]}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`${item.images && item.images.length > 0 ? 'hidden' : ''}`}>
+                        <Package className="w-10 h-10 text-gray-600" />
+                      </div>
                     </div>
 
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="text-lg font-semibold text-white mb-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
                             {item.name}
                           </h3>
-                          <div className="flex items-center gap-2 text-gray-400 text-sm">
+                          <div className="flex items-center gap-2 text-gray-600 text-sm">
                             <MapPin className="w-4 h-4" />
                             {item.location}
                           </div>
                         </div>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => clearItem(item.id)}
                           className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -179,9 +146,9 @@ export default function BuyerCart() {
                       </div>
 
                       <div className="flex items-center justify-between mt-4">
-                        <p className="text-xl font-bold text-white">
+                        <p className="text-xl font-bold text-gray-900">
                           {item.price.toLocaleString()} FCFA
-                          <span className="text-sm text-gray-400 ml-1">
+                          <span className="text-sm text-gray-600 ml-1">
                             / {item.unit}
                           </span>
                         </p>
@@ -191,11 +158,11 @@ export default function BuyerCart() {
                             onClick={() =>
                               updateQuantity(item.id, item.quantity - 1)
                             }
-                            className="p-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
+                            className="p-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-all"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
-                          <div className="px-4 py-2 bg-gray-700 text-white font-bold rounded-lg min-w-[60px] text-center">
+                          <div className="px-4 py-2 bg-gray-100 text-gray-900 font-bold rounded-lg min-w-[60px] text-center">
                             {item.quantity}
                           </div>
                           <button
@@ -203,16 +170,16 @@ export default function BuyerCart() {
                               updateQuantity(item.id, item.quantity + 1)
                             }
                             disabled={item.quantity >= item.stock}
-                            className="p-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
 
-                      <div className="mt-3 pt-3 border-t border-gray-700">
+                      <div className="mt-3 pt-3 border-t border-gray-200">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400 text-sm">Sous-total</span>
+                          <span className="text-gray-600 text-sm">Sous-total</span>
                           <span className="text-xl font-bold text-blue-400">
                             {(item.price * item.quantity).toLocaleString()} FCFA
                           </span>
@@ -226,25 +193,25 @@ export default function BuyerCart() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 sticky top-24">
-                <h2 className="text-xl font-semibold text-white mb-6">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 sticky top-24 shadow-sm">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">
                   Récapitulatif
                 </h2>
 
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-center justify-between text-gray-400">
-                    <span>Articles ({cartItems.length})</span>
-                    <span>{calculateTotal().toLocaleString()} FCFA</span>
+                  <div className="flex items-center justify-between text-gray-600">
+                    <span>Articles ({cart.length})</span>
+                    <span>{getTotalPrice().toLocaleString()} FCFA</span>
                   </div>
-                  <div className="flex items-center justify-between text-gray-400">
+                  <div className="flex items-center justify-between text-gray-600">
                     <span>Livraison</span>
                     <span className="text-green-400">Gratuite</span>
                   </div>
-                  <div className="pt-3 border-t border-gray-700">
+                  <div className="pt-3 border-t border-gray-200">
                     <div className="flex items-center justify-between">
-                      <span className="text-white font-semibold">Total</span>
-                      <span className="text-2xl font-bold text-white">
-                        {calculateTotal().toLocaleString()} FCFA
+                      <span className="text-gray-900 font-semibold">Total</span>
+                      <span className="text-2xl font-bold text-gray-900">
+                        {getTotalPrice().toLocaleString()} FCFA
                       </span>
                     </div>
                   </div>
@@ -259,7 +226,7 @@ export default function BuyerCart() {
                     onChange={(e) => setDeliveryAddress(e.target.value)}
                     placeholder="Entrez votre adresse complète..."
                     rows={3}
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   />
                 </div>
 

@@ -79,89 +79,104 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 via-white to-agri-green-50/20">
         <div className="w-full max-w-md animate-scale-in">
-          <div className="text-center mb-8 lg:hidden">
-            <Leaf className="h-12 w-12 mx-auto mb-4 text-agri-green-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Agri-Lien</h2>
+          {/* Mobile Logo */}
+          <div className="text-center mb-10 lg:hidden">
+            <div className="flex justify-center mb-4">
+              <div className="h-16 w-16 bg-gradient-to-br from-agri-green-500 via-agri-green-600 to-agri-green-700 rounded-3xl flex items-center justify-center shadow-2xl shadow-agri-green-500/30 animate-float">
+                <Leaf className="h-8 w-8 text-white" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 font-poppins">Agri-Lien</h2>
+            <p className="text-sm text-gray-600 mt-1">Agriculture connectée du Bénin</p>
           </div>
 
-          <Card className="shadow-xl border-0 hover-lift">
-            <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-3xl font-bold text-center text-gray-900">
-                Connexion
+          {/* Main Card */}
+          <Card className="shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
+            <CardHeader className="space-y-1 pb-8 pt-10 px-8">
+              <CardTitle className="text-3xl lg:text-4xl font-bold text-center text-gray-900 font-poppins">
+                Bon retour !
               </CardTitle>
-              <p className="text-center text-gray-600">
+              <p className="text-center text-gray-600 text-base">
+                Connectez-vous pour accéder à votre espace
               </p>
             </CardHeader>
-            <CardContent>
+            
+            <CardContent className="px-8 pb-10">
+              {/* Error Alert */}
               {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 animate-fade-in">
-                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                  <span className="text-sm">{error}</span>
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3 animate-shake">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-600" />
+                  <span className="text-sm font-medium text-red-800">{error}</span>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Email/Phone Input */}
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2.5">
                     Email ou Téléphone
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
+                      <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-agri-green-500 transition-colors" />
                     </div>
                     <Input
                       type="text"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="email@exemple.com ou +229..."
-                      className="pl-10 h-12 border-gray-300 focus:border-agri-green-500 focus:ring-agri-green-500"
+                      placeholder="email@exemple.com ou +229 XX XX XX XX"
+                      className="pl-10 h-13 bg-white border-gray-300 focus:border-agri-green-500 focus:ring-2 focus:ring-agri-green-500/20 transition-all text-base"
                       required
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                  </p>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Mot de passe
-                  </label>
+                {/* Password Input */}
+                <div className="group">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Mot de passe
+                    </label>
+                    <Link 
+                      href="/forgot-password" 
+                      className="text-xs font-medium text-agri-green-600 hover:text-agri-green-700 hover:underline transition-colors"
+                    >
+                      Oublié?
+                    </Link>
+                  </div>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
+                      <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-agri-green-500 transition-colors" />
                     </div>
                     <Input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="pl-10 h-12 border-gray-300 focus:border-agri-green-500 focus:ring-agri-green-500"
+                      className="pl-10 h-13 bg-white border-gray-300 focus:border-agri-green-500 focus:ring-2 focus:ring-agri-green-500/20 transition-all text-base"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                {/* Remember Me */}
+                <div className="flex items-center">
+                  <label className="flex items-center gap-2.5 cursor-pointer group">
                     <input 
                       type="checkbox" 
-                      className="h-4 w-4 text-agri-green-600 focus:ring-agri-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-agri-green-600 focus:ring-agri-green-500 border-gray-300 rounded transition-all"
                     />
-                    <span className="text-sm text-gray-600">Se souvenir de moi</span>
+                    <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Se souvenir de moi</span>
                   </label>
-                  <Link 
-                    href="/forgot-password" 
-                    className="text-sm font-medium text-agri-green-600 hover:text-agri-green-700 hover:underline"
-                  >
-                    Mot de passe oublié?
-                  </Link>
                 </div>
 
+                {/* Submit Button */}
                 <Button 
                   type="submit" 
-                  className="w-full h-12 bg-agri-green-600 hover:bg-agri-green-700 text-white font-semibold text-base press-feedback"
+                  className="w-full h-14 bg-gradient-to-r from-agri-green-600 to-agri-green-700 hover:from-agri-green-700 hover:to-agri-green-800 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 group"
                   disabled={loading}
                 >
                   {loading ? (
@@ -170,48 +185,51 @@ export default function LoginPage() {
                       Connexion en cours...
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2">
-                      Se connecter
-                      <ArrowRight className="h-5 w-5" />
-                    </span>
+                    <>
+                      <span>Se connecter</span>
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </>
                   )}
                 </Button>
               </form>
 
-              <div className="mt-6">
+              {/* Divider */}
+              <div className="mt-8 mb-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">Ou continuer avec</span>
+                    <span className="px-4 bg-white text-gray-500 font-medium">Ou continuer avec</span>
                   </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors press-feedback"
-                  >
-                    <Smartphone className="h-5 w-5 text-agri-green-600" />
-                    <span className="text-sm font-medium text-gray-700">USSD</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors press-feedback"
-                  >
-                    <span className="text-lg">📱</span>
-                    <span className="text-sm font-medium text-gray-700">SMS</span>
-                  </button>
                 </div>
               </div>
 
+              {/* Alternative Login Methods */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl hover:border-agri-green-500 hover:bg-agri-green-50 transition-all duration-200 press-feedback group"
+                >
+                  <Smartphone className="h-5 w-5 text-agri-green-600" />
+                  <span className="text-sm font-semibold text-gray-700 group-hover:text-agri-green-700">USSD</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl hover:border-agri-green-500 hover:bg-agri-green-50 transition-all duration-200 press-feedback group"
+                >
+                  <span className="text-xl">📱</span>
+                  <span className="text-sm font-semibold text-gray-700 group-hover:text-agri-green-700">SMS</span>
+                </button>
+              </div>
+
+              {/* Sign Up Link */}
               <div className="mt-8 text-center">
                 <p className="text-gray-600">
                   Pas encore de compte?{' '}
                   <Link 
                     href="/register" 
-                    className="font-semibold text-agri-green-600 hover:text-agri-green-700 hover:underline"
+                    className="font-bold text-agri-green-600 hover:text-agri-green-700 hover:underline transition-colors"
                   >
                     Créer un compte
                   </Link>
@@ -220,13 +238,14 @@ export default function LoginPage() {
             </CardContent>
           </Card>
 
-          <p className="mt-8 text-center text-sm text-gray-500">
+          {/* Footer */}
+          <p className="mt-8 text-center text-xs text-gray-400 leading-relaxed max-w-sm mx-auto">
             En vous connectant, vous acceptez nos{' '}
-            <Link href="/terms" className="text-agri-green-600 hover:underline">
+            <Link href="/terms" className="text-agri-green-600 hover:underline font-medium">
               Conditions d'utilisation
             </Link>
             {' '}et notre{' '}
-            <Link href="/privacy" className="text-agri-green-600 hover:underline">
+            <Link href="/privacy" className="text-agri-green-600 hover:underline font-medium">
               Politique de confidentialité
             </Link>
           </p>
