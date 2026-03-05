@@ -1,0 +1,74 @@
+# Dépendances
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production
+.next
+out
+build
+dist
+
+# Environnement local - garder .env.production pour Render
+.env.local
+.env.development
+.env.test
+
+# Logs
+*.log
+logs
+
+# Fichiers temporaires
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# Tests
+coverage
+.nyc_output
+.coverage
+**/*.test.*
+**/*.spec.*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Documentation - garder les guides essentiels
+docs/
+*.md
+!DEPLOYMENT_GUIDE.md
+!RENDER_QUICK_START.md
+
+# Scripts locaux uniquement
+scripts/dev.sh
+scripts/local.sh
+scripts/pre-deploy-check.sh
+
+# Base de données locale
+database/local.db
+*.sqlite
+*.db
+
+# Docker et déploiement
+.dockerignore
+docker-compose*
+render.yaml
+
+# Sécurité
+*.pem
+*.key
+*.crt
+
+# Base de données locale
+database/local.db
+*.sqlite
+*.db

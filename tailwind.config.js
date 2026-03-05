@@ -1,0 +1,161 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ["class"],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        'agri-green': {
+          DEFAULT: '#2E8B57',
+          50: '#E8F5ED',
+          100: '#C7E7D6',
+          200: '#A3D9BF',
+          300: '#7FCAA7',
+          400: '#5BAC8F',
+          500: '#2E8B57',
+          600: '#267045',
+          700: '#1E5534',
+          800: '#163B24',
+          900: '#0E2115',
+        },
+        'agri-ochre': {
+          DEFAULT: '#D2691E',
+          50: '#FCF0E7',
+          100: '#F8DCC4',
+          200: '#F4C8A1',
+          300: '#EFB37D',
+          400: '#EB9F5A',
+          500: '#D2691E',
+          600: '#A85318',
+          700: '#7E3E12',
+          800: '#54290C',
+          900: '#2A1506',
+        },
+        'agri-gold': {
+          DEFAULT: '#FFD700',
+          50: '#FFFEF0',
+          100: '#FFFBD6',
+          200: '#FFF8BC',
+          300: '#FFF4A3',
+          400: '#FFF189',
+          500: '#FFD700',
+          600: '#D4B000',
+          700: '#A98A00',
+          800: '#7E6400',
+          900: '#533F00',
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: '#2E8B57',
+          foreground: '#FFFFFF',
+          50: '#E8F5ED',
+          100: '#C7E7D6',
+          200: '#A3D9BF',
+          300: '#7FCAA7',
+          400: '#5BAC8F',
+          500: '#2E8B57',
+          600: '#267045',
+          700: '#1E5534',
+          800: '#163B24',
+          900: '#0E2115',
+        },
+        secondary: {
+          DEFAULT: '#D2691E',
+          foreground: '#FFFFFF',
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: '#FFD700',
+          foreground: '#1A1A1A',
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      fontFamily: {
+        poppins: ['Poppins', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: 0 },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: 0 },
+        },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.98)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        toastIn: {
+          '0%': { opacity: '0', transform: 'translateY(8px) scale(0.98)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        successPop: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '70%': { transform: 'scale(1.05)', opacity: '1' },
+          '100%': { transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        'fade-in': 'fadeIn 0.6s ease-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'bounce-slow': 'bounce 3s infinite',
+        'scale-in': 'scaleIn 0.25s ease-out',
+        'shimmer': 'shimmer 1.2s ease-in-out infinite',
+        'toast-in': 'toastIn 0.3s ease-out',
+        'success-pop': 'successPop 0.4s ease-out',
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+}

@@ -1,0 +1,30 @@
+services:
+  # Application Web Next.js
+  - type: web
+    name: agri-lien-web
+    runtime: node
+    plan: starter # ou standard selon vos besoins
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_APP_URL
+        fromService:
+          type: web
+          name: agri-lien-web
+          property: host
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: agri-lien-web
+          property: host
+        transform: "${HOST}/api"
+
+  # Base de données PostgreSQL
+  - type: pgsql
+    name: agri-lien-db
+    databaseName: agrilien
+    user: agrilien_user
+    plan: starter # ou standard selon vos besoins

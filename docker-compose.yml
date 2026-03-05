@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: agrilien-postgres
+    environment:
+      POSTGRES_DB: agrilien
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agrilien-network
+
+  # Application Next.js (optionnel pour le développement)
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: agrilien-app
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/agrilien
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: agrilien
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      JWT_SECRET: dev-jwt-secret-key-change-in-production
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - agrilien-network
+    command: npm run dev
+
+  # Redis pour les sessions et le cache (optionnel)
+  redis:
+    image: redis:7-alpine
+    container_name: agrilien-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - agrilien-network
+
+  # pgAdmin pour l'administration de la base de données
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: agrilien-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@agrilien.bj
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - agrilien-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  agrilien-network:
+    driver: bridge
+
+# Configuration pour le développement
+# Usage:
+#   docker-compose up -d postgres redis pgadmin    # Démarrer seulement les services de données
+#   docker-compose up                              # Démarrer tous les services
+#   docker-compose logs -f postgres                # Voir les logs PostgreSQL
+#   docker-compose exec postgres psql -U postgres -d agrilien   # Accéder à PostgreSQL en CLI
