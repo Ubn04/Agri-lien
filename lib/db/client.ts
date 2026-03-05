@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from 'pg'
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg'
 import { config } from './config'
 
 class PostgresClient {
@@ -31,7 +31,7 @@ class PostgresClient {
     return PostgresClient.instance
   }
 
-  async query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
+  async query<T extends QueryResultRow = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
     if (this.mockMode) {
       console.log('🔧 Mode mock : requête simulée -', text)
       // Retourner une réponse mock basique
@@ -84,7 +84,7 @@ class PostgresClient {
     }
   }
 
-  async queryWithTransaction<T = any>(
+  async queryWithTransaction<T extends QueryResultRow = any>(
     text: string, 
     params?: any[], 
     client?: PoolClient

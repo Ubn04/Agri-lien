@@ -1,30 +1,70 @@
 services:
   # Application Web Next.js
   - type: web
-    name: agri-lien-web
-    runtime: node
-    plan: starter # ou standard selon vos besoins
-    buildCommand: npm ci && npm run build
+    name: agri-lien
+    env: node
+    plan: starter # Plan gratuit disponible
+    region: oregon # ou 'frankfurt' pour l'Europe
+    buildCommand: |
+      npm ci --production=false
+      npm run build
     startCommand: npm start
     healthCheckPath: /api/health
+
+    # Variables d'environnement auto-configurées
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_APP_URL
         fromService:
           type: web
-          name: agri-lien-web
+          name: agri-lien
           property: host
       - key: NEXT_PUBLIC_API_URL
         fromService:
           type: web
-          name: agri-lien-web
+          name: agri-lien
           property: host
-        transform: "${HOST}/api"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agri-lien-db
+          property: connectionString
+      - key: DB_HOST
+        fromDatabase:
+          name: agri-lien-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: agri-lien-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: agri-lien-db
+          property: databaseName
+      - key: DB_USER
+        fromDatabase:
+          name: agri-lien-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: agri-lien-db
+          property: password
+      # Secrets JWT (générés automatiquement)
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      # Variables à configurer manuellement
+      - key: JWT_EXPIRES_IN
+        value: "7d"
+      - key: REFRESH_TOKEN_EXPIRES_IN
+        value: "30d"
+      - key: DATABASE_POOL_SIZE
+        value: "10"
 
-  # Base de données PostgreSQL
-  - type: pgsql
-    name: agri-lien-db
+# Base de données PostgreSQL
+databases:
+  - name: agri-lien-db
+    plan: starter # Gratuit jusqu'à 1GB
     databaseName: agrilien
-    user: agrilien_user
-    plan: starter # ou standard selon vos besoins
+    user: agrilien

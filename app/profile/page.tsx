@@ -65,12 +65,6 @@ export default function ProfilePage() {
                 <Phone className="h-4 w-4 mr-2" />
                 {formatPhone(user.phone)}
               </div>
-              {user.location && (
-                <div className="flex items-center text-gray-600">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  {user.location}
-                </div>
-              )}
               <div className="flex items-center text-gray-600">
                 <Calendar className="h-4 w-4 mr-2" />
                 Membre depuis {formatDate(user.createdAt)}
@@ -80,114 +74,14 @@ export default function ProfilePage() {
         </div>
       </Card>
 
-      {/* Role-specific Information */}
-      {user.role === 'FARMER' && user.farmerProfile && (
-        <Card className="p-6 mb-6">
-          <h3 className="text-xl font-semibold mb-4">Informations Agricoles</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-600">Nom de la ferme</label>
-              <p className="font-medium">{user.farmerProfile.farmName}</p>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-600">Localisation</label>
-              <p className="font-medium">{user.farmerProfile.location}</p>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-600">Taille de la ferme</label>
-              <p className="font-medium">{user.farmerProfile.farmSize} hectares</p>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-600">Années d'expérience</label>
-              <p className="font-medium">{user.farmerProfile.yearsOfExperience} ans</p>
-            </div>
-
-            {user.farmerProfile.certifications && user.farmerProfile.certifications.length > 0 && (
-              <div className="md:col-span-2">
-                <label className="text-sm text-gray-600 mb-2 block">Certifications</label>
-                <div className="flex flex-wrap gap-2">
-                  {user.farmerProfile.certifications.map((cert, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                      <Award className="h-3 w-3" />
-                      {cert}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {user.farmerProfile.description && (
-              <div className="md:col-span-2">
-                <label className="text-sm text-gray-600">Description</label>
-                <p className="mt-1 text-gray-700">{user.farmerProfile.description}</p>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {user.role === 'BUYER' && user.buyerProfile && (
-        <Card className="p-6 mb-6">
-          <h3 className="text-xl font-semibold mb-4">Informations Acheteur</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-600">Type d'entreprise</label>
-              <p className="font-medium">{user.buyerProfile.businessType}</p>
-            </div>
-
-            {user.buyerProfile.companyName && (
-              <div>
-                <label className="text-sm text-gray-600">Nom de l'entreprise</label>
-                <p className="font-medium">{user.buyerProfile.companyName}</p>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {user.role === 'LOGISTICS' && user.logisticsProfile && (
-        <Card className="p-6 mb-6">
-          <h3 className="text-xl font-semibold mb-4">Informations Logistique</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-600">Nom de l'entreprise</label>
-              <p className="font-medium">{user.logisticsProfile.companyName}</p>
-            </div>
-
-            {user.logisticsProfile.vehicleTypes && (
-              <div>
-                <label className="text-sm text-gray-600 mb-2 block">Types de véhicules</label>
-                <div className="flex flex-wrap gap-2">
-                  {user.logisticsProfile.vehicleTypes.map((vehicle, index) => (
-                    <Badge key={index} variant="secondary">
-                      {vehicle}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {user.logisticsProfile.coverageAreas && (
-              <div className="md:col-span-2">
-                <label className="text-sm text-gray-600 mb-2 block">Zones de couverture</label>
-                <div className="flex flex-wrap gap-2">
-                  {user.logisticsProfile.coverageAreas.map((area, index) => (
-                    <Badge key={index} variant="outline">
-                      {area}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
+      {/* Role Information */}
+      <Card className="p-6 mb-6">
+        <h3 className="text-xl font-semibold mb-4">Informations de Rôle</h3>
+        <div>
+          <label className="text-sm text-gray-600">Rôle</label>
+          <p className="font-medium capitalize">{user.role}</p>
+        </div>
+      </Card>
 
       {/* Account Settings */}
       <Card className="p-6">
@@ -199,7 +93,7 @@ export default function ProfilePage() {
               <p className="font-medium">Notifications par email</p>
               <p className="text-sm text-gray-600">Recevez des mises à jour par email</p>
             </div>
-            <Badge variant="secondary">Activé</Badge>
+            <Badge variant="default">Activé</Badge>
           </div>
 
           <div className="flex justify-between items-center py-2 border-t">
@@ -207,7 +101,7 @@ export default function ProfilePage() {
               <p className="font-medium">Notifications SMS</p>
               <p className="text-sm text-gray-600">Recevez des alertes par SMS</p>
             </div>
-            <Badge variant="secondary">Activé</Badge>
+            <Badge variant="default">Activé</Badge>
           </div>
 
           <div className="flex justify-between items-center py-2 border-t">

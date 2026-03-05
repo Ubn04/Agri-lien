@@ -64,7 +64,7 @@ export default function AdminUsersPage() {
 
   const filteredUsers = users.filter(u => {
     const matchesSearch = 
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (u.phone && u.phone.includes(searchTerm));
     
@@ -234,10 +234,10 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-semibold">
-                          {u.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          {`${u.firstName} ${u.lastName}`.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-white">{u.name}</div>
+                          <div className="text-sm font-medium text-white">{`${u.firstName} ${u.lastName}`}</div>
                           <div className="text-xs text-gray-400">ID: {u.id}</div>
                         </div>
                       </div>

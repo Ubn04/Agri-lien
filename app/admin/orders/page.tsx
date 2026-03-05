@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useRouter } from 'next/navigation';
-import { Order } from '@/lib/types';
+import { Order, OrderStatus } from '@/lib/types';
 import { 
   ShoppingCart, Search, Clock, CheckCircle, Package as PackageIcon, 
   Truck, XCircle, DollarSign, MapPin, User
@@ -48,7 +48,7 @@ export default function AdminOrdersPage() {
 
       if (response.ok) {
         setOrders(orders.map(o => 
-          o.id === orderId ? { ...o, status: newStatus } : o
+          o.id === orderId ? { ...o, status: newStatus as OrderStatus } : o
         ));
         alert('Statut de la commande mis à jour');
       } else {
@@ -63,7 +63,7 @@ export default function AdminOrdersPage() {
   const filteredOrders = orders.filter(o => {
     const matchesSearch = 
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      o.buyerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.deliveryAddress?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
@@ -139,7 +139,7 @@ export default function AdminOrdersPage() {
 
   const stats = {
     total: orders.length,
-    revenue: orders.reduce((sum, o) => sum + o.total, 0),
+    revenue: orders.reduce((sum, o) => sum + o.totalAmount, 0),
     pending: orders.filter(o => o.status === 'pending').length,
     completed: orders.filter(o => o.status === 'delivered').length,
   };
@@ -264,7 +264,7 @@ export default function AdminOrdersPage() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-300">
                       <User className="w-4 h-4 mr-2 text-gray-400" />
-                      {order.buyer.name}
+                      {order.buyerId}
                     </div>
                     <div className="flex items-center text-sm text-gray-300">
                       <MapPin className="w-4 h-4 mr-2 text-gray-400" />
@@ -279,7 +279,7 @@ export default function AdminOrdersPage() {
 
                 <div className="text-right">
                   <p className="text-gray-400 text-sm mb-1">Montant total</p>
-                  <p className="text-2xl font-bold text-green-400">{order.total.toLocaleString()} FCFA</p>
+                  <p className="text-2xl font-bold text-green-400">{order.totalAmount.toLocaleString()} FCFA</p>
                 </div>
               </div>
 
@@ -290,9 +290,9 @@ export default function AdminOrdersPage() {
                   {order.items.map((item, index) => (
                     <div key={index} className="flex justify-between items-center text-sm">
                       <span className="text-white">
-                        {item.product.name} x {item.quantity}
+                        {item.productName} x {item.quantity} {item.unit}
                       </span>
-                      <span className="text-gray-300">{(item.price * item.quantity).toLocaleString()} FCFA</span>
+                      <span className="text-gray-300">{(item.pricePerUnit * item.quantity).toLocaleString()} FCFA</span>
                     </div>
                   ))}
                 </div>

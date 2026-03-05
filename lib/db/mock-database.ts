@@ -3,18 +3,7 @@
 
 import fs from 'fs'
 import path from 'path'
-
-// Types simplifiés pour la compatibilité
-interface User {
-  id: string
-  email: string
-  firstName: string
-  lastName: string
-  phone: string
-  role: string
-  createdAt: Date
-  [key: string]: any
-}
+import { User, UserRole, UserStatus } from '../types/user'
 
 interface Product {
   id: string
@@ -65,49 +54,46 @@ const db: Database = {
     {
       id: '1',
       email: 'admin@agrilien.bj',
-      name: 'Admin Agri-Lien',
       firstName: 'Admin',
       lastName: 'Agri-Lien',
       phone: '+229 97 00 00 00',
-      role: 'admin',
+      role: UserRole.ADMIN,
+      status: UserStatus.ACTIVE,
       createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
     },
     {
       id: '2',
       email: 'fermier@test.bj',
-      name: 'Jean Kouassi',
       firstName: 'Jean',
       lastName: 'Kouassi',
       phone: '+229 97 11 11 11',
-      role: 'farmer',
-      createdAt: new Date('2024-01-15'),
-      farmName: 'Ferme Bio Kouassi',
-      farmLocation: 'Abomey-Calavi, Atlantique',
-      farmSize: 5.5,
+      role: UserRole.FARMER,
+      status: UserStatus.ACTIVE,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
     },
     {
       id: '3',
       email: 'acheteur@test.bj',
-      name: 'Marie Dosso',
       firstName: 'Marie',
       lastName: 'Dosso',
       phone: '+229 97 22 22 22',
-      role: 'buyer',
-      createdAt: new Date('2024-02-01'),
-      address: 'Rue 123, Quartier Akpakpa',
-      city: 'Cotonou',
+      role: UserRole.BUYER,
+      status: UserStatus.ACTIVE,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
     },
     {
       id: '4',
       email: 'logistique@test.bj',
-      name: 'Logisticien Test',
       firstName: 'Logisticien',
       lastName: 'Test',
       phone: '+229 97 33 33 33',
-      role: 'logistics',
-      createdAt: new Date('2024-01-20'),
-      department: 'Livraisons',
-      location: 'Cotonou',
+      role: UserRole.LOGISTICS,
+      status: UserStatus.ACTIVE,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
     },
   ],
   products: [
@@ -321,12 +307,13 @@ export const mockDB = {
     return true
   },
 
-  createUser: (userData: Omit<User, 'id' | 'createdAt'> & { password: string }): User => {
+  createUser: (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'> & { password: string }): User => {
     const { password, ...userDataWithoutPassword } = userData
     const newUser: User = {
+      ...userDataWithoutPassword,
       id: (db.users.length + 1).toString(),
       createdAt: new Date(),
-      ...userDataWithoutPassword,
+      updatedAt: new Date(),
     }
     db.users.push(newUser)
     passwords.set(userData.email, hashPassword(password))
@@ -381,9 +368,9 @@ export const mockDB = {
 
   createProduct: (productData: Omit<Product, 'id' | 'createdAt'>): Product => {
     const newProduct: Product = {
+      ...productData,
       id: (db.products.length + 1).toString(),
       createdAt: new Date(),
-      ...productData,
     }
     db.products.push(newProduct)
     saveData() // Sauvegarder après création

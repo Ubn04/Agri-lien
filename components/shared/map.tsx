@@ -183,7 +183,7 @@ export function DeliveryTrackingMap({
   if (currentLocation) {
     markers.push({
       id: 'current',
-      position: currentLocation,
+      position: { ...currentLocation, label: 'Position actuelle' },
       title: 'Position actuelle',
     })
   }

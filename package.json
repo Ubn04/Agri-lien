@@ -7,6 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postbuild": "npm run db:migrate",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -32,7 +33,9 @@
     "docker:db": "docker-compose up -d postgres redis pgadmin",
     "services:start": "bash scripts/start-dev-services.sh",
     "services:stop": "bash scripts/stop-dev-services.sh",
-    "services:clean": "bash scripts/stop-dev-services.sh --clean"
+    "services:clean": "bash scripts/stop-dev-services.sh --clean",
+    "render:prepare": "bash scripts/prepare-render.sh",
+    "render:test": "npm run build && npm run db:health"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.0.5",

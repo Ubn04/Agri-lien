@@ -113,7 +113,7 @@ export default function AdminProductsPage() {
           price: parseFloat(formData.price),
           unit: formData.unit,
           category: formData.category,
-          stock: parseInt(formData.stock),
+          availableQuantity: parseInt(formData.stock),
           location: formData.location,
           images: formData.image ? [formData.image] : [],
         }),
@@ -151,14 +151,14 @@ export default function AdminProductsPage() {
     const matchesSearch = 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.farmer?.name.toLowerCase().includes(searchTerm.toLowerCase());
+      p.farmerId?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
     
     const matchesStock = 
       stockFilter === 'all' ||
-      (stockFilter === 'low' && p.stock > 0 && p.stock <= 10) ||
-      (stockFilter === 'out' && p.stock === 0);
+      (stockFilter === 'low' && p.availableQuantity > 0 && p.availableQuantity <= 10) ||
+      (stockFilter === 'out' && p.availableQuantity === 0);
     
     return matchesSearch && matchesCategory && matchesStock;
   });
@@ -189,9 +189,9 @@ export default function AdminProductsPage() {
 
   const stats = {
     total: products.length,
-    value: products.reduce((sum, p) => sum + (p.price * p.stock), 0),
-    lowStock: products.filter(p => p.stock > 0 && p.stock <= 10).length,
-    outOfStock: products.filter(p => p.stock === 0).length,
+    value: products.reduce((sum, p) => sum + (p.pricePerUnit * p.availableQuantity), 0),
+    lowStock: products.filter(p => p.availableQuantity > 0 && p.availableQuantity <= 10).length,
+    outOfStock: products.filter(p => p.availableQuantity === 0).length,
   };
 
   if (loading) {
@@ -334,7 +334,7 @@ export default function AdminProductsPage() {
                   </div>
                 )}
                 <div className="absolute top-3 right-3">
-                  {getStockBadge(product.stock)}
+                  {getStockBadge(product.availableQuantity)}
                 </div>
               </div>
 
@@ -348,20 +348,20 @@ export default function AdminProductsPage() {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Prix</span>
-                    <span className="text-green-400 font-bold">{product.price} FCFA/{product.unit}</span>
+                    <span className="text-green-400 font-bold">{product.pricePerUnit} FCFA/{product.unit}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Stock</span>
-                    <span className="text-white font-semibold">{product.stock} {product.unit}</span>
+                    <span className="text-white font-semibold">{product.availableQuantity} {product.unit}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Catégorie</span>
                     <span className="text-white">{product.category}</span>
                   </div>
-                  {product.farmer && (
+                  {product.farmerId && (
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Fermier</span>
-                      <span className="text-white">{product.farmer.name}</span>
+                      <span className="text-gray-400 text-sm">Fermier ID</span>
+                      <span className="text-white">{product.farmerId}</span>
                     </div>
                   )}
                 </div>

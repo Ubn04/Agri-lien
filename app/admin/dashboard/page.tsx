@@ -144,7 +144,7 @@ export default function AdminDashboard() {
             Tableau de Bord Admin
           </h1>
           <p className="text-gray-400">
-            Bienvenue, {user?.name}. Voici un aperçu de votre plateforme.
+            Bienvenue, {user?.firstName} {user?.lastName}. Voici un aperçu de votre plateforme.
           </p>
         </div>
 

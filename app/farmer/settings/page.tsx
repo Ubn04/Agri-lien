@@ -24,7 +24,7 @@ export default function FarmerSettings() {
     lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    location: user?.location || '',
+    location: '',
     farmName: 'Ma Ferme',
     farmSize: '5 hectares',
     specialties: 'Légumes, Fruits',

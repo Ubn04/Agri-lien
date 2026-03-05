@@ -115,7 +115,7 @@ export default function LogisticsDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white mb-2">Tableau de Bord Logistique</h1>
-        <p className="text-gray-400">Bienvenue, {user?.name}. Gérez vos livraisons et votre flotte.</p>
+        <p className="text-gray-400">Bienvenue, {user?.firstName} {user?.lastName}. Gérez vos livraisons et votre flotte.</p>
       </div>
 
       {/* Stats Cards */}

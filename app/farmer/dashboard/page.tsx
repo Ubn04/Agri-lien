@@ -151,7 +151,7 @@ export default function FarmerDashboard() {
             Tableau de Bord Fermier
           </h1>
           <p className="text-gray-400">
-            Bienvenue, {user?.name}. Voici un aperçu de votre activité.
+            Bienvenue, {user?.firstName} {user?.lastName}. Voici un aperçu de votre activité.
           </p>
         </div>
 

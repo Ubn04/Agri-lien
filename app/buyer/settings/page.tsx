@@ -24,7 +24,7 @@ export default function BuyerSettings() {
     lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    location: user?.location || '',
+    location: '',
   });
 
   const [notifications, setNotifications] = useState({

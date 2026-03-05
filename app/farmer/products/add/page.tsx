@@ -17,7 +17,7 @@ export default function AddProduct() {
     unit: 'kg',
     category: 'Légumes',
     stock: '',
-    location: user?.location || '',
+    location: '',
     image: '',
   });
 

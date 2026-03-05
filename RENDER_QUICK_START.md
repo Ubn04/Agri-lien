@@ -1,25 +1,85 @@
-# 🚀 Agri-Lien - Déploiement Render (Résumé)
+# ⚡ HÉBERGEMENT NODE.JS SUR RENDER - GUIDE EXPRESS
 
-## ✅ Étapes rapides
+## 🚀 3 ÉTAPES SIMPLES
 
-### 1. Sur Render.com
+### 1. **PRÉPARER** (2 min)
 
-1. **Nouveau Web Service** → Connecter votre repository Git
-2. **Configuration** :
-   ```
-   Build Command: npm ci && npm run build
-   Start Command: npm start
-   ```
+```bash
+# Test de préparation
+npm run render:prepare
 
-### 2. Variables d'environnement essentielles
-
-```env
-NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://votre-app.onrender.com
-NEXT_PUBLIC_API_URL=https://votre-app.onrender.com/api
-DATABASE_URL=postgresql://[render-vous-donnera-cette-url]
-JWT_SECRET=votre-clé-secrète-de-32-caractères-minimum
+# Push sur GitHub
+git add .
+git commit -m "Ready for Render"
+git push origin main
 ```
+
+### 2. **DÉPLOYER** (3 min)
+
+1. Allez sur **[render.com](https://render.com)**
+2. Connectez GitHub
+3. **New +** → **Blueprint**
+4. Sélectionnez votre repo `agri-lien-main`
+5. **Create New Resources**
+
+### 3. **CONFIGURER** (1 min)
+
+Dans l'interface Render, ajoutez:
+
+```
+MOMO_API_KEY=votre_clé
+MOMO_API_SECRET=votre_secret
+```
+
+## ✅ **RÉSULTAT**
+
+- ✅ **PostgreSQL** créée automatiquement
+- ✅ **Variables** auto-configurées
+- ✅ **HTTPS** activé
+- ✅ **App disponible**: `https://agri-lien-xxx.onrender.com`
+- ✅ **Deploy auto** à chaque push Git
+
+## 💰 **PRIX**
+
+- **Gratuit**: 0$/mois (avec sommeil après inactivité)
+- **Starter**: 14$/mois (always-on, recommandé)
+- **Standard**: 45$/mois (production)
+
+## 🛠️ **COMMANDES UTILES**
+
+```bash
+npm run render:prepare    # Préparer deploy
+npm run build            # Test build local
+npm run db:health        # Test base de données
+```
+
+## 📱 **APRÈS DEPLOY**
+
+```bash
+# Migrer données (une fois)
+render shell --service=agri-lien
+npm run migrate-data
+
+# Test santé
+curl https://votre-app.onrender.com/api/health
+```
+
+## 🔧 **FICHIERS CRÉÉS**
+
+- ✅ `render.yaml` - Configuration auto
+- ✅ `DEPLOY_RENDER.md` - Guide complet
+- ✅ `RENDER_PRICING.md` - Prix & plans
+- ✅ `scripts/prepare-render.sh` - Préparation
+- ✅ Health endpoint optimisé
+
+---
+
+**🎯 RENDER = La solution la plus simple pour héberger Node.js avec PostgreSQL !**
+
+**📞 Besoin d'aide ? Tous les détails dans [DEPLOY_RENDER.md](DEPLOY_RENDER.md)**
+JWT_SECRET=votre-clé-secrète-de-32-caractères-minimum
+
+````
 
 ### 3. Base de données PostgreSQL
 
@@ -42,7 +102,7 @@ JWT_SECRET=votre-clé-secrète-de-32-caractères-minimum
 
 # Test de build local (optionnel)
 ./scripts/pre-deploy-check.sh --test-build
-```
+````
 
 ## 💰 Coûts estimés
 

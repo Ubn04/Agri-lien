@@ -1,6 +1,11 @@
+// Import du client et des fonctions nécessaires
+import { db } from './client'
+import { validateConfig } from './config'
+import { runMigrations } from './migrations'
+
 // Export du client et des utilitaires de base de données
 export { db, PostgresClient } from './client'
-export { config, validateConfig } from './config'
+export { config } from './config'
 
 // Export des services PostgreSQL
 export { 

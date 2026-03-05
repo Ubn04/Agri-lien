@@ -1,6 +1,8 @@
-import { mockDB } from '@/lib/db/mock-database'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { OrderService } from '@/lib/services/orderService'
+import { UserService } from '@/lib/services/userService'
+import { AuthService } from '@/lib/services/authService'
 
 export async function GET(request: Request) {
   try {
@@ -14,19 +16,11 @@ export async function GET(request: Request) {
       )
     }
 
-    const session = mockDB.getSession(token)
-    if (!session) {
+    const user = await AuthService.getCurrentUser(token)
+    if (!user) {
       return NextResponse.json(
         { success: false, message: 'Session expirée' },
         { status: 401 }
-      )
-    }
-
-    const user = mockDB.findUserById(session.userId)
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: 'Utilisateur non trouvé' },
-        { status: 404 }
       )
     }
 
@@ -34,11 +28,14 @@ export async function GET(request: Request) {
 
     // Filtrer selon le rôle
     if (user.role === 'admin') {
-      orders = mockDB.getAllOrders()
+      const result = await OrderService.getOrders({}, 1, 1000) // Limite élevée pour admin
+      orders = result.orders
     } else if (user.role === 'buyer') {
-      orders = mockDB.getOrdersByBuyer(user.id)
+      const result = await OrderService.getOrders({ buyerId: user.id })
+      orders = result.orders
     } else if (user.role === 'farmer') {
-      orders = mockDB.getOrdersByFarmer(user.id)
+      const result = await OrderService.getOrders({ farmerId: user.id })
+      orders = result.orders
     }
 
     return NextResponse.json({
@@ -69,16 +66,15 @@ export async function POST(request: Request) {
       )
     }
 
-    const session = mockDB.getSession(token)
-    if (!session) {
+    const user = await AuthService.getCurrentUser(token)
+    if (!user) {
       return NextResponse.json(
         { success: false, message: 'Session expirée' },
         { status: 401 }
       )
     }
 
-    const user = mockDB.findUserById(session.userId)
-    if (!user || user.role !== 'buyer') {
+    if (user.role !== 'buyer') {
       return NextResponse.json(
         { success: false, message: 'Seuls les acheteurs peuvent créer des commandes' },
         { status: 403 }
@@ -87,28 +83,10 @@ export async function POST(request: Request) {
 
     const orderData = await request.json()
 
-    // Vérifier le stock
-    for (const item of orderData.items) {
-      const product = mockDB.getProductById(item.productId)
-      if (!product) {
-        return NextResponse.json(
-          { success: false, message: `Produit ${item.productId} non trouvé` },
-          { status: 404 }
-        )
-      }
-      if (product.stock < item.quantity) {
-        return NextResponse.json(
-          { success: false, message: `Stock insuffisant pour ${product.name}` },
-          { status: 400 }
-        )
-      }
-    }
-
-    const newOrder = mockDB.createOrder({
+    // Créer la commande
+    const newOrder = await OrderService.createOrder({
       ...orderData,
       buyerId: user.id,
-      buyerName: `${user.firstName} ${user.lastName}`,
-      buyerPhone: user.phone,
       status: 'pending',
     })
 

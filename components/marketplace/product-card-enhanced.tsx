@@ -66,7 +66,7 @@ export function ProductCardEnhanced({ product, onAddToCart, viewMode }: ProductC
                   ))}
                   <span className="text-sm text-gray-600 ml-1">({product.sales})</span>
                 </div>
-                <Badge variant="outline" className="border-agri-gold-300 text-agri-gold-700">
+                <Badge variant="default" className="border-agri-gold-300 text-agri-gold-700">
                   {product.quality}
                 </Badge>
                 <span className="text-sm text-gray-600">Stock: {product.stock} {product.unit}</span>
@@ -121,7 +121,7 @@ export function ProductCardEnhanced({ product, onAddToCart, viewMode }: ProductC
         {/* Contenu */}
         <div className="p-5">
           {/* Catégorie */}
-          <Badge variant="outline" className="mb-2 text-xs border-agri-green-200 text-agri-green-700">
+          <Badge variant="default" className="mb-2 text-xs border-agri-green-200 text-agri-green-700">
             {product.category}
           </Badge>
 

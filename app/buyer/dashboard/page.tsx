@@ -167,7 +167,7 @@ export default function BuyerDashboard() {
             Tableau de Bord Acheteur
           </h1>
           <p className="text-gray-400">
-            Bienvenue, {user?.name}. Gérez vos achats et commandes.
+            Bienvenue, {user?.firstName} {user?.lastName}. Gérez vos achats et commandes.
           </p>
         </div>
 
