@@ -1,22 +1,31 @@
 export interface Product {
   id: string
   farmerId: string
+  farmer_id?: string // Version DB snake_case
   name: string
   category: ProductCategory
   description: string
   images: string[]
   unit: Unit
   pricePerUnit: number
+  price_per_unit?: number // Version DB snake_case
   availableQuantity: number
+  available_quantity?: number // Version DB snake_case
   minimumOrder: number
+  minimum_order?: number // Version DB snake_case
   harvestDate?: Date
+  harvest_date?: Date // Version DB snake_case
   expiryDate?: Date
+  expiry_date?: Date // Version DB snake_case
   certifications: string[]
   status: ProductStatus
   rating: number
   totalSales: number
+  total_sales?: number // Version DB snake_case
   createdAt: Date
+  created_at?: Date // Version DB snake_case
   updatedAt: Date
+  updated_at?: Date // Version DB snake_case
 }
 
 export enum ProductCategory {

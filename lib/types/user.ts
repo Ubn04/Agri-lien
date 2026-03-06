@@ -6,6 +6,11 @@ export interface User {
   lastName: string
   role: UserRole
   status: UserStatus
+  password_hash?: string // Propriété incluse côté serveur seulement
+  first_name?: string // Version DB snake_case 
+  last_name?: string // Version DB snake_case
+  created_at?: Date // Version DB snake_case
+  updated_at?: Date // Version DB snake_case
   avatar?: string
   createdAt: Date
   updatedAt: Date
