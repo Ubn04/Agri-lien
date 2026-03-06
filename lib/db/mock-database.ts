@@ -454,7 +454,7 @@ export const mockDB = {
     orderData.items.forEach(item => {
       const product = db.products.find(p => p.id === item.productId)
       if (product) {
-        product.stock -= item.quantity
+        product.availableQuantity -= item.quantity
       }
     })
     
