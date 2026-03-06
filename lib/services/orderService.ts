@@ -51,7 +51,7 @@ export class OrderService {
         validatedItems.push({
           ...item,
           productName: product.name,
-          price: product.pricePerUnit,
+          pricePerUnit: product.pricePerUnit,
           unit: product.unit
         })
       }
