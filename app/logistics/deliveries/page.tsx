@@ -64,8 +64,8 @@ export default function DeliveriesPage() {
           ...order,
           buyerName: 'Acheteur', // Mock data
           buyerPhone: '+229 XX XX XX XX',
-          driver: order.status === 'shipped' || order.status === 'delivered' ? 'Chauffeur A' : null,
-          vehicle: order.status === 'shipped' || order.status === 'delivered' ? 'VH-001' : null,
+          driver: order.status === 'IN_TRANSIT' || order.status === 'DELIVERED' ? 'Chauffeur A' : null,
+          vehicle: order.status === 'IN_TRANSIT' || order.status === 'DELIVERED' ? 'VH-001' : null,
         }));
 
         setDeliveries(deliveriesData);
@@ -136,9 +136,9 @@ export default function DeliveriesPage() {
 
   const stats = {
     total: deliveries.length,
-    pending: deliveries.filter(d => d.status === 'confirmed').length,
-    inTransit: deliveries.filter(d => d.status === 'shipped').length,
-    delivered: deliveries.filter(d => d.status === 'delivered').length,
+    pending: deliveries.filter(d => d.status === 'CONFIRMED').length,
+    inTransit: deliveries.filter(d => d.status === 'IN_TRANSIT').length,
+    delivered: deliveries.filter(d => d.status === 'DELIVERED').length,
   };
 
   if (loading) {
@@ -300,7 +300,7 @@ export default function DeliveriesPage() {
 
               {/* Actions */}
               <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-700">
-                {delivery.status === 'confirmed' && (
+                {delivery.status === 'CONFIRMED' && (
                   <button
                     onClick={() => updateDeliveryStatus(delivery.id, 'shipped')}
                     className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-200 text-sm font-medium"
@@ -308,7 +308,7 @@ export default function DeliveriesPage() {
                     Marquer en transit
                   </button>
                 )}
-                {delivery.status === 'shipped' && (
+                {delivery.status === 'IN_TRANSIT' && (
                   <button
                     onClick={() => updateDeliveryStatus(delivery.id, 'delivered')}
                     className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg hover:shadow-green-500/20 transition-all duration-200 text-sm font-medium"

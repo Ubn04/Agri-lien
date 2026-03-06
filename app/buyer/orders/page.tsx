@@ -162,7 +162,7 @@ export default function BuyerOrders() {
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
             <p className="text-gray-400 text-sm mb-1">Livrées</p>
             <p className="text-2xl font-bold text-green-400">
-              {orders.filter((o) => o.status === 'delivered').length}
+              {orders.filter((o) => o.status === 'DELIVERED').length}
             </p>
           </div>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">

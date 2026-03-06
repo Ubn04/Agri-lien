@@ -140,8 +140,8 @@ export default function AdminOrdersPage() {
   const stats = {
     total: orders.length,
     revenue: orders.reduce((sum, o) => sum + o.totalAmount, 0),
-    pending: orders.filter(o => o.status === 'pending').length,
-    completed: orders.filter(o => o.status === 'delivered').length,
+    pending: orders.filter(o => o.status === 'PENDING').length,
+    completed: orders.filter(o => o.status === 'DELIVERED').length,
   };
 
   if (loading) {

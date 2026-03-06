@@ -485,7 +485,7 @@ export const mockDB = {
       totalOrders: db.orders.length,
       totalRevenue: db.orders.reduce((sum, o) => sum + o.totalAmount, 0),
       activeOrders: db.orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length,
-      pendingOrders: db.orders.filter(o => o.status === 'pending').length,
+      pendingOrders: db.orders.filter(o => o.status === 'PENDING').length,
       lowStockProducts: db.products.filter(p => p.availableQuantity > 0 && p.availableQuantity <= 10).length,
       newUsersToday: db.users.filter(u => new Date(u.createdAt) >= today).length,
       ordersToday: db.orders.filter(o => new Date(o.createdAt) >= today).length,

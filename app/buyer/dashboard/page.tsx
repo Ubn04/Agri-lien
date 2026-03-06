@@ -53,8 +53,8 @@ export default function BuyerDashboard() {
 
       setStats({
         totalOrders: myOrders.length,
-        pendingOrders: myOrders.filter((o: any) => o.status === 'pending' || o.status === 'confirmed').length,
-        completedOrders: myOrders.filter((o: any) => o.status === 'delivered').length,
+        pendingOrders: myOrders.filter((o: any) => o.status === 'PENDING' || o.status === 'CONFIRMED').length,
+        completedOrders: myOrders.filter((o: any) => o.status === 'DELIVERED').length,
         totalSpent: myOrders.reduce((sum: number, o: any) => sum + o.total, 0),
         favoriteProducts: 0,
         recentOrders: myOrders.slice(0, 5),

@@ -57,8 +57,8 @@ export default function LogisticsDashboard() {
         const orders = data.data;
         
         // Calculate delivery stats
-        const pending = orders.filter((o: any) => o.status === 'confirmed').length;
-        const inTransit = orders.filter((o: any) => o.status === 'shipped').length;
+        const pending = orders.filter((o: any) => o.status === 'CONFIRMED').length;
+        const inTransit = orders.filter((o: any) => o.status === 'IN_TRANSIT').length;
         const completed = orders.filter((o: any) => o.status === 'delivered').length;
 
         setStats({

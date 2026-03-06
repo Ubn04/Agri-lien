@@ -215,25 +215,25 @@ export default function FarmerOrders() {
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
             <p className="text-gray-400 text-sm mb-1">En attente</p>
             <p className="text-2xl font-bold text-yellow-400">
-              {orders.filter((o) => o.status === 'pending').length}
+              {orders.filter((o) => o.status === 'PENDING').length}
             </p>
           </div>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
             <p className="text-gray-400 text-sm mb-1">Confirmées</p>
             <p className="text-2xl font-bold text-blue-400">
-              {orders.filter((o) => o.status === 'confirmed').length}
+              {orders.filter((o) => o.status === 'CONFIRMED').length}
             </p>
           </div>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
             <p className="text-gray-400 text-sm mb-1">En cours</p>
             <p className="text-2xl font-bold text-purple-400">
-              {orders.filter((o) => o.status === 'processing' || o.status === 'shipped').length}
+              {orders.filter((o) => o.status === 'PREPARING' || o.status === 'IN_TRANSIT').length}
             </p>
           </div>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
             <p className="text-gray-400 text-sm mb-1">Livrées</p>
             <p className="text-2xl font-bold text-green-400">
-              {orders.filter((o) => o.status === 'delivered').length}
+              {orders.filter((o) => o.status === 'DELIVERED').length}
             </p>
           </div>
         </div>
@@ -332,7 +332,7 @@ export default function FarmerOrders() {
                   </div>
 
                   {/* Actions */}
-                  {nextStatus && order.status !== 'delivered' && order.status !== 'cancelled' && (
+                  {nextStatus && order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateOrderStatus(order.id, nextStatus)}
@@ -340,7 +340,7 @@ export default function FarmerOrders() {
                       >
                         {getNextStatusLabel(order.status)}
                       </button>
-                      {order.status === 'pending' && (
+                      {order.status === 'PENDING' && (
                         <button
                           onClick={() => updateOrderStatus(order.id, 'cancelled')}
                           className="px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-all"
