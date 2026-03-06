@@ -3,6 +3,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/providers/providers'
 
+// Force dynamic rendering for all pages to prevent SSR issues with React Context
+export const dynamic = 'force-dynamic'
+
 // Configuration de police système comme fallback
 const inter = { 
   className: 'font-sans' // Utilise les polices système définies dans Tailwind
