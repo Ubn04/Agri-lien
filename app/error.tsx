@@ -4,6 +4,9 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { AlertTriangle } from 'lucide-react'
 
+// Force dynamic rendering for error pages
+export const dynamic = 'force-dynamic'
+
 export default function Error({
   error,
   reset,
