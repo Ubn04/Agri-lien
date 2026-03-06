@@ -20,7 +20,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {
-    checkAuth()
+    // Only run auth check on client side
+    if (typeof window !== 'undefined') {
+      checkAuth()
+    } else {
+      // Set loading to false immediately on server side
+      setIsLoading(false)
+    }
   }, [])
 
   const checkAuth = async () => {

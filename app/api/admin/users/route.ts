@@ -2,6 +2,9 @@ import { mockDB } from '@/lib/db/mock-database'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET - Récupérer tous les utilisateurs (Admin uniquement)
 export async function GET() {
   try {

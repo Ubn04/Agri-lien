@@ -1,6 +1,9 @@
 import { mockDB } from '@/lib/db/mock-database'
 import { cookies } from 'next/headers'
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 export async function POST() {
   try {
     const cookieStore = await cookies()
