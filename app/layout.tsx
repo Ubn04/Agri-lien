@@ -3,9 +3,6 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/providers/providers'
 
-// Force dynamic rendering for all pages to prevent SSR issues with React Context
-export const dynamic = 'force-dynamic'
-
 // Configuration de police système comme fallback
 const inter = { 
   className: 'font-sans' // Utilise les polices système définies dans Tailwind
@@ -16,6 +13,9 @@ export const metadata: Metadata = {
   description: 'Plateforme de connexion entre fermiers, acheteurs et logistique au Bénin',
   keywords: ['agriculture', 'bénin', 'fermiers', 'marketplace', 'produits locaux'],
 }
+
+// Force dynamic rendering for all pages to prevent SSG errors with React Context
+export const dynamic = 'force-dynamic'
 
 export default function RootLayout({
   children,
