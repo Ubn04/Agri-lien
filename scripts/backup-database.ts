@@ -114,9 +114,10 @@ async function createBackup() {
     }
     
   } catch (error) {
-    console.error('❌ Erreur lors de la sauvegarde:', error.message)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('❌ Erreur lors de la sauvegarde:', errorMessage)
     
-    if (error.message.includes('pg_dump')) {
+    if (errorMessage.includes('pg_dump')) {
       console.error('💡 Assurez-vous que PostgreSQL client (pg_dump) est installé')
       console.error('   Ubuntu/Debian: sudo apt install postgresql-client')
       console.error('   macOS: brew install postgresql')
@@ -160,7 +161,8 @@ async function listBackups() {
     return backups
     
   } catch (error) {
-    console.error('❌ Erreur lors du listing des sauvegardes:', error.message)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('❌ Erreur lors du listing des sauvegardes:', errorMessage)
     throw error
   }
 }
@@ -233,7 +235,8 @@ async function restoreBackup(backupFile?: string) {
     console.log('✅ Restauration terminée avec succès!')
     
   } catch (error) {
-    console.error('❌ Erreur lors de la restauration:', error.message)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('❌ Erreur lors de la restauration:', errorMessage)
     throw error
   }
 }
@@ -275,7 +278,8 @@ async function cleanupBackups(keepCount: number = 10) {
     console.log(`📊 ${backups.length - toDelete.length} sauvegarde(s) conservée(s)`)
     
   } catch (error) {
-    console.error('❌ Erreur lors du nettoyage:', error.message)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('❌ Erreur lors du nettoyage:', errorMessage)
   }
 }
 
