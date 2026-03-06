@@ -93,6 +93,11 @@ export class AuthService {
       throw new Error('Email ou mot de passe incorrect')
     }
 
+    // Vérifier que le mot de passe hashé existe
+    if (!user.password_hash) {
+      throw new Error('Données utilisateur corrompues. Contactez l\'administration.')
+    }
+
     // Vérifier le mot de passe
     const isPasswordValid = await UserService.verifyPassword(password, user.password_hash)
     if (!isPasswordValid) {
@@ -217,6 +222,11 @@ export class AuthService {
     const user = await UserService.findByIdWithProfile(userId)
     if (!user) {
       throw new Error('Utilisateur introuvable')
+    }
+
+    // Vérifier que le mot de passe hashé existe
+    if (!user.password_hash) {
+      throw new Error('Données utilisateur corrompues. Contactez l\'administration.')
     }
 
     // Vérifier le mot de passe actuel
