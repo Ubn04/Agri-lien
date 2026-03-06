@@ -104,8 +104,8 @@ async function seedProducts() {
         price_per_unit: parseFloat(mockProduct.price || mockProduct.pricePerUnit || 0),
         available_quantity: parseFloat(mockProduct.stock || mockProduct.availableQuantity || 0),
         minimum_order: parseFloat(mockProduct.minimumOrder || 1),
-        harvest_date: mockProduct.harvestDate ? new Date(mockProduct.harvestDate) : null,
-        expiry_date: mockProduct.expiryDate ? new Date(mockProduct.expiryDate) : null,
+        harvest_date: mockProduct.harvestDate ? new Date(mockProduct.harvestDate) : undefined,
+        expiry_date: mockProduct.expiryDate ? new Date(mockProduct.expiryDate) : undefined,
         certifications: mockProduct.certifications || [],
         status: 'AVAILABLE'
       }
