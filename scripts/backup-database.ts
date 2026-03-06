@@ -34,6 +34,11 @@ async function createBackup() {
     
     // Construire la commande pg_dump
     const dbConfig = config.database
+    
+    if (!dbConfig) {
+      throw new Error('Configuration de base de données non trouvée')
+    }
+    
     const pgDumpCommand = [
       'pg_dump',
       `--host=${dbConfig.host}`,
@@ -182,6 +187,10 @@ async function restoreBackup(backupFile?: string) {
     }
     
     const dbConfig = config.database
+    
+    if (!dbConfig) {
+      throw new Error('Configuration de base de données non trouvée')
+    }
     
     // Construire la commande pg_restore
     const pgRestoreCommand = [
