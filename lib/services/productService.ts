@@ -279,7 +279,7 @@ export class ProductService {
     `
     
     const result = await db.query(query, [id])
-    return result.rowCount > 0
+    return result.rowCount !== null && result.rowCount > 0
   }
 
   // Obtenir les produits populaires

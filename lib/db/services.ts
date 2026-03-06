@@ -130,7 +130,7 @@ export const UserService = {
       'DELETE FROM users WHERE id = $1',
       [id]
     )
-    return result.rowCount > 0
+    return result.rowCount !== null && result.rowCount > 0
   },
 
   // Mettre à jour un utilisateur
@@ -235,7 +235,7 @@ export const ProductService = {
       'DELETE FROM products WHERE id = $1',
       [id]
     )
-    return result.rowCount > 0
+    return result.rowCount !== null && result.rowCount > 0
   },
 
   // Rechercher des produits
