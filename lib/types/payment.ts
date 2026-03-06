@@ -1,3 +1,5 @@
+import { PaymentStatus } from './order'
+
 export interface Payment {
   id: string
   orderId: string
