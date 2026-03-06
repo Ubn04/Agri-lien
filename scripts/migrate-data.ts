@@ -7,7 +7,7 @@
 
 import { initializeDatabase, db } from '../lib/db'
 import { UserService, AuthService } from '../lib/services'
-import mockData from '../data/mock-db.json'
+const mockData = require('../data/mock-db.json')
 import { UserRole } from '../lib/types/user'
 import bcrypt from 'bcryptjs'
 
