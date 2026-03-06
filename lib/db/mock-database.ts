@@ -4,22 +4,7 @@
 import fs from 'fs'
 import path from 'path'
 import { User, UserRole, UserStatus } from '../types/user'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  unit: string
-  category: string
-  farmerId: string
-  farmerName: string
-  location: string
-  stock: number
-  images: string[]
-  createdAt: Date
-  [key: string]: any
-}
+import { Product, ProductCategory, Unit, ProductStatus } from '../types/product'
 
 interface OrderItem {
   productId: string
@@ -100,72 +85,92 @@ const db: Database = {
     {
       id: '1',
       name: 'Tomates Fraîches',
+      category: ProductCategory.VEGETABLES,
       description: 'Tomates bio cultivées localement, parfaites pour vos sauces et salades',
-      price: 1500,
-      unit: 'kg',
-      category: 'Légumes',
-      farmerId: '2',
-      farmerName: 'Jean Kouassi',
-      location: 'Abomey-Calavi',
-      stock: 150,
       images: ['/products/tomates.jpg'],
+      unit: Unit.KG,
+      pricePerUnit: 1500,
+      availableQuantity: 150,
+      minimumOrder: 1,
+      farmerId: '2',
+      certifications: ['BIO', 'LOCAL'],
+      status: ProductStatus.AVAILABLE,
+      rating: 4.5,
+      totalSales: 250,
       createdAt: new Date('2024-02-01'),
+      updatedAt: new Date('2024-02-01'),
     },
     {
       id: '2',
       name: 'Ananas Sweet',
+      category: ProductCategory.FRUITS,
       description: 'Ananas sucrés et juteux, fraîchement récoltés',
-      price: 800,
-      unit: 'pièce',
-      category: 'Fruits',
-      farmerId: '2',
-      farmerName: 'Jean Kouassi',
-      location: 'Abomey-Calavi',
-      stock: 80,
       images: ['/products/ananas.jpg'],
+      unit: Unit.PIECE,
+      pricePerUnit: 800,
+      availableQuantity: 80,
+      minimumOrder: 1,
+      farmerId: '2',
+      certifications: ['FRAIS', 'LOCAL'],
+      status: ProductStatus.AVAILABLE,
+      rating: 4.8,
+      totalSales: 120,
       createdAt: new Date('2024-02-02'),
+      updatedAt: new Date('2024-02-02'),
     },
     {
       id: '3',
       name: 'Maïs Frais',
+      category: ProductCategory.CEREALS,
       description: 'Maïs tendre fraîchement cueilli, idéal pour atassi',
-      price: 500,
-      unit: 'épis',
-      category: 'Céréales',
-      farmerId: '2',
-      farmerName: 'Jean Kouassi',
-      location: 'Abomey-Calavi',
-      stock: 200,
       images: ['/products/mais.jpg'],
+      unit: Unit.PIECE,
+      pricePerUnit: 500,
+      availableQuantity: 200,
+      minimumOrder: 5,
+      farmerId: '2',
+      certifications: ['LOCAL', 'FRAIS'],
+      status: ProductStatus.AVAILABLE,
+      rating: 4.3,
+      totalSales: 150,
       createdAt: new Date('2024-02-03'),
+      updatedAt: new Date('2024-02-03'),
     },
     {
       id: '4',
       name: 'Piment Frais',
+      category: ProductCategory.VEGETABLES,
       description: 'Piments locaux très piquants pour vos sauces',
-      price: 2000,
-      unit: 'kg',
-      category: 'Légumes',
-      farmerId: '2',
-      farmerName: 'Jean Kouassi',
-      location: 'Abomey-Calavi',
-      stock: 50,
       images: ['/products/piment.jpg'],
+      unit: Unit.KG,
+      pricePerUnit: 2000,
+      availableQuantity: 50,
+      minimumOrder: 1,
+      farmerId: '2',
+      certifications: ['BIO', 'LOCAL'],
+      status: ProductStatus.AVAILABLE,
+      rating: 4.7,
+      totalSales: 85,
       createdAt: new Date('2024-02-04'),
+      updatedAt: new Date('2024-02-04'),
     },
     {
       id: '5',
       name: 'Ignames Fraîches',
+      category: ProductCategory.TUBERS,
       description: 'Ignames de qualité premium, cultivées sans pesticides',
-      price: 1200,
-      unit: 'kg',
-      category: 'Tubercules',
-      farmerId: '2',
-      farmerName: 'Jean Kouassi',
-      location: 'Abomey-Calavi',
-      stock: 300,
       images: ['/products/igname.jpg'],
+      unit: Unit.KG,
+      pricePerUnit: 1200,
+      availableQuantity: 300,
+      minimumOrder: 3,
+      farmerId: '2',
+      certifications: ['BIO', 'PREMIUM'],
+      status: ProductStatus.AVAILABLE,
+      rating: 4.6,
+      totalSales: 220,
       createdAt: new Date('2024-02-05'),
+      updatedAt: new Date('2024-02-05'),
     },
   ],
   orders: [],
@@ -366,11 +371,13 @@ export const mockDB = {
     return db.products.filter(p => p.farmerId === farmerId)
   },
 
-  createProduct: (productData: Omit<Product, 'id' | 'createdAt'>): Product => {
+  createProduct: (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Product => {
+    const now = new Date()
     const newProduct: Product = {
       ...productData,
       id: (db.products.length + 1).toString(),
-      createdAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     }
     db.products.push(newProduct)
     saveData() // Sauvegarder après création
@@ -479,7 +486,7 @@ export const mockDB = {
       totalRevenue: db.orders.reduce((sum, o) => sum + o.totalAmount, 0),
       activeOrders: db.orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length,
       pendingOrders: db.orders.filter(o => o.status === 'pending').length,
-      lowStockProducts: db.products.filter(p => p.stock > 0 && p.stock <= 10).length,
+      lowStockProducts: db.products.filter(p => p.availableQuantity > 0 && p.availableQuantity <= 10).length,
       newUsersToday: db.users.filter(u => new Date(u.createdAt) >= today).length,
       ordersToday: db.orders.filter(o => new Date(o.createdAt) >= today).length,
     }
