@@ -10,26 +10,26 @@ import { AuthService } from '@/lib/services'
 // Configuration des routes et leurs permissions requises
 const routePermissions: Record<string, string[]> = {
   // Routes admin
-  '/admin': ['ADMIN'],
-  '/api/admin': ['ADMIN'],
+  '/admin': ['admin'],
+  '/api/admin': ['admin'],
   
   // Routes fermiers
-  '/farmer': ['FARMER'],
-  '/api/farmer': ['FARMER'],
+  '/farmer': ['farmer'],
+  '/api/farmer': ['farmer'],
   
   // Routes acheteurs
-  '/buyer': ['BUYER'],
-  '/api/buyer': ['BUYER'],
+  '/buyer': ['buyer'],
+  '/api/buyer': ['buyer'],
   
   // Routes logistique
-  '/logistics': ['LOGISTICS'],
-  '/api/logistics': ['LOGISTICS'],
+  '/logistics': ['logistics'],
+  '/api/logistics': ['logistics'],
   
   // Routes authentifiées (tous les rôles connectés)
-  '/profile': ['FARMER', 'BUYER', 'LOGISTICS', 'ADMIN'],
-  '/api/orders': ['FARMER', 'BUYER', 'LOGISTICS'],
-  '/api/products': ['FARMER', 'BUYER'],
-  '/api/notifications': ['FARMER', 'BUYER', 'LOGISTICS', 'ADMIN'],
+  '/profile': ['farmer', 'buyer', 'logistics', 'admin'],
+  '/api/orders': ['farmer', 'buyer', 'logistics'],
+  '/api/products': ['farmer', 'buyer'],
+  '/api/notifications': ['farmer', 'buyer', 'logistics', 'admin'],
 }
 
 // Routes publiques (pas besoin d'authentification)
@@ -137,16 +137,16 @@ export async function middleware(request: NextRequest) {
           let redirectPath = '/'
           
           switch (user.role) {
-            case 'ADMIN':
+            case 'admin':
               redirectPath = '/admin/dashboard'
               break
-            case 'FARMER':
+            case 'farmer':
               redirectPath = '/farmer/dashboard'
               break
-            case 'BUYER':
+            case 'buyer':
               redirectPath = '/buyer/dashboard'
               break
-            case 'LOGISTICS':
+            case 'logistics':
               redirectPath = '/logistics/dashboard'
               break
           }
