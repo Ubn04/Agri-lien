@@ -53,10 +53,15 @@ async function createBackup() {
       `--file=${filepath}`
     ].join(' ')
     
+    // Obtenir le mot de passe (peut être une string ou une fonction)
+    const password = typeof dbConfig.password === 'function' 
+      ? await dbConfig.password() 
+      : dbConfig.password
+    
     // Définir le mot de passe via variable d'environnement
     const env = {
       ...process.env,
-      PGPASSWORD: dbConfig.password
+      PGPASSWORD: password
     }
     
     console.log('💾 Création de la sauvegarde...')
@@ -207,9 +212,14 @@ async function restoreBackup(backupFile?: string) {
       filepath
     ].join(' ')
     
+    // Obtenir le mot de passe (peut être une string ou une fonction)
+    const password = typeof dbConfig.password === 'function' 
+      ? await dbConfig.password() 
+      : dbConfig.password
+    
     const env = {
       ...process.env,
-      PGPASSWORD: dbConfig.password
+      PGPASSWORD: password
     }
     
     console.log('💾 Restauration en cours...')
