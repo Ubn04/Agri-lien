@@ -4,7 +4,7 @@
 import { db } from './client'
 import { PoolClient } from 'pg'
 import crypto from 'crypto'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 // Types pour TypeScript
 export interface User {
