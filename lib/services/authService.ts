@@ -1,7 +1,7 @@
 // import jwt from 'jsonwebtoken' // Temporairement désactivé
 import { config } from '../db/config'
 import UserService, { CreateUserData, CreateFarmerProfileData, CreateBuyerProfileData } from './userService'
-import { User, UserRole } from '../types/user'
+import { User, UserRole, UserStatus } from '../types/user'
 
 // JWT Mock temporaire simplifiée pour compatibilité edge runtime
 const jwt = {
@@ -105,11 +105,11 @@ export class AuthService {
     }
 
     // Vérifier le statut du compte
-    if (user.status === 'SUSPENDED') {
+    if (user.status === UserStatus.SUSPENDED) {
       throw new Error('Votre compte a été suspendu. Contactez l\'administration.')
     }
 
-    if (user.status === 'INACTIVE') {
+    if (user.status === UserStatus.INACTIVE) {
       throw new Error('Votre compte a été désactivé.')
     }
 

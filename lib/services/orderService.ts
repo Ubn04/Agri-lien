@@ -1,5 +1,6 @@
 import { db } from '../db'
 import { Order, OrderStatus, OrderItem, PaymentStatus } from '../types/order'
+import { UserRole } from '../types/user'
 import ProductService from './productService'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -290,11 +291,11 @@ export class OrderService {
     const values: any[] = []
     
     if (userId && role) {
-      if (role === 'FARMER') {
+      if (role === UserRole.FARMER) {
         whereClause = 'WHERE farmer_id = $1'
-      } else if (role === 'BUYER') {
+      } else if (role === UserRole.BUYER) {
         whereClause = 'WHERE buyer_id = $1'
-      } else if (role === 'LOGISTICS') {
+      } else if (role === UserRole.LOGISTICS) {
         whereClause = 'WHERE logistics_id = $1'
       }
       values.push(userId)

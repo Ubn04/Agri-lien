@@ -190,7 +190,7 @@ export class UserService {
     const user = userResult.rows[0]
     
     // Charger le profil selon le rôle
-    if (user.role === 'FARMER') {
+    if (user.role === UserRole.FARMER) {
       const profileQuery = `
         SELECT * FROM farmer_profiles WHERE user_id = $1
       `
@@ -209,7 +209,7 @@ export class UserService {
           totalSales: profile.total_sales
         }
       }
-    } else if (user.role === 'BUYER') {
+    } else if (user.role === UserRole.BUYER) {
       const profileQuery = `
         SELECT * FROM buyer_profiles WHERE user_id = $1
       `
