@@ -4,6 +4,12 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   
+  // Désactiver le prerendering pour les pages d'erreur
+  experimental: {
+    skipTrailingSlashRedirect: true,
+    skipMiddlewareUrlNormalize: true,
+  },
+  
   // Configuration webpack pour ignorer les modules optionnels
   webpack: (config, { isServer }) => {
     // Ignorer les modules optionnels de PostgreSQL
