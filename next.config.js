@@ -4,10 +4,10 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   
-  // Désactiver le prerendering pour les pages d'erreur
   experimental: {
     skipTrailingSlashRedirect: true,
     skipMiddlewareUrlNormalize: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   
   // Configuration webpack pour ignorer les modules optionnels
@@ -54,10 +54,6 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
-  },
-  // Optimisations pour la production
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   // Configuration pour Render
   output: 'standalone',
