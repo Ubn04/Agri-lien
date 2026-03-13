@@ -2,6 +2,8 @@ import { mockDB } from '@/lib/db/mock-database'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
+export const dynamic = 'force-dynamic'
+
 interface RouteParams {
   params: {
     id: string

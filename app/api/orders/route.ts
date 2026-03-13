@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { OrderService } from '@/lib/services/orderService'
+export const dynamic = 'force-dynamic'
 import { UserService } from '@/lib/services/userService'
 import { AuthService } from '@/lib/services/authService'
 
