@@ -9,10 +9,12 @@
  *   npm run db:reset         # Reset complet de la DB
  */
 
-import { program } from 'commander'
+import { Command } from 'commander'
 import { initializeDatabase, runMigrations, rollbackMigration, getMigrationStatus, db } from '../lib/db'
 import { config } from '../lib/db/config'
 import readline from 'readline'
+
+const program = new Command()
 
 // Interface pour les réponses utilisateur
 const rl = readline.createInterface({
@@ -212,7 +214,7 @@ program
 
 // Exécuter si le script est appelé directement
 if (require.main === module) {
-  program.parse()
+  program.parse(process.argv)
 }
 
 export { migrateCommand, rollbackCommand, statusCommand, resetCommand, healthCommand }

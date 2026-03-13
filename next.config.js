@@ -3,10 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
   
   experimental: {
-    skipTrailingSlashRedirect: true,
-    skipMiddlewareUrlNormalize: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   
