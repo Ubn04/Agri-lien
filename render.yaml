@@ -6,6 +6,7 @@ services:
     plan: starter # Plan gratuit disponible
     region: oregon # ou 'frankfurt' pour l'Europe
     buildCommand: |
+      rm -rf .next
       npm ci --production=false
       npm run build
     startCommand: npm start
